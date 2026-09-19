@@ -31,10 +31,13 @@ def create_app(config_class=Config):
     # Importar todos los modelos para que SQLAlchemy los reconozca al crear las tablas
     from app.models import user, order, ticket, message, setting
 
-    # Crear automáticamente las tablas si no existen (red de seguridad para primer arranque;
-    # el esquema autoritativo vive en migrations/ vía `flask db upgrade`)
-    with app.app_context():
-        db.create_all()
+    # Crear automáticamente las tablas si no existen (protegido con try/except 
+    # para evitar condiciones de carrera cuando Gunicorn levanta múltiples workers)
+    try:
+        with app.app_context():
+            db.create_all()
+    except Exception as e:
+        print(f"Nota: Las tablas ya existen o se omitió la creación automática: {e}")
 
     # Registrar los manejadores de eventos Socket.IO (chat en tiempo real + notificaciones admin)
     from app import sockets
