@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import current_app, url_for
 
@@ -56,7 +57,7 @@ def _send_via_resend(to_email, subject, html_body):
     """
     Función interna que realiza la petición HTTP POST hacia la API de Resend.
     """
-    api_key = current_app.config.get('RESEND_API_KEY')
+    api_key = os.environ.get('RESEND_API_KEY')
     
     if not api_key:
         raise Exception("Falta configurar la variable RESEND_API_KEY en el entorno de Railway.")
