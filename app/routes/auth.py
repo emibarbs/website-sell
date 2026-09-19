@@ -1,18 +1,30 @@
 from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
-from flask_login import login_user, logout_user, login_required
+from urllib.parse import urlparse
+
 from authlib.integrations.flask_client import OAuth
-from app.models.user import User
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask_login import login_required, login_user, logout_user
+
 from app.extensions import db
+from app.models.user import User
 from app.services.email_service import send_verification_email
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 oauth = OAuth()
 
+
+def is_safe_url(target):
+    if not target:
+        return False
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(target)
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc or not test_url.netloc
+
+
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
+        email = (request.form.get('email') or '').strip().lower()
         password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
 
@@ -29,19 +41,28 @@ def login():
         db.session.commit()
 
         login_user(user)
+        
         next_url = request.args.get('next')
-        if next_url:
+        if next_url and is_safe_url(next_url):
             return redirect(next_url)
-        return redirect(url_for('main.index'))
+            
+        if user.role == 'Admin':
+            return redirect(url_for('admin.dashboard'))
+        return redirect(url_for('client.dashboard'))
 
     return render_template('auth/login.html')
+
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
+        name = (request.form.get('name') or '').strip()
+        email = (request.form.get('email') or '').strip().lower()
         password = request.form.get('password')
+
+        if not name or not email or not password:
+            flash('Por favor completa todos los campos.')
+            return render_template('auth/register.html')
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -51,14 +72,21 @@ def register():
         new_user = User(name=name, email=email, role='Client', is_verified=False)
         new_user.set_password(password)
         new_user.apply_admin_bootstrap()
+        
         db.session.add(new_user)
         db.session.commit()
 
-        send_verification_email(new_user)
-        flash('¡Cuenta creada! Te enviamos un correo para verificar tu cuenta antes de iniciar sesión.')
+        try:
+            send_verification_email(new_user)
+            flash('¡Cuenta creada! Te enviamos un correo para verificar tu cuenta antes de iniciar sesión.')
+        except Exception as e:
+            current_app.logger.error(f"Fallo envío de correo en registro: {e}")
+            flash('Cuenta creada. Si no recibes el correo, revisa tu consola de desarrollo o solicita el reenvío.')
+
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
+
 
 @bp.route('/verify/<token>')
 def verify_email(token):
@@ -69,28 +97,38 @@ def verify_email(token):
 
     if not user.is_verified:
         user.is_verified = True
+        
     user.apply_admin_bootstrap()
     user.last_login = datetime.utcnow()
     db.session.commit()
 
     login_user(user)
     flash('¡Tu cuenta fue verificada correctamente!')
-    return redirect(url_for('main.index'))
+    
+    if user.role == 'Admin':
+        return redirect(url_for('admin.dashboard'))
+    return redirect(url_for('client.dashboard'))
+
 
 @bp.route('/resend-verification/<email>')
 def resend_verification(email):
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email.strip().lower()).first()
     if user and not user.is_verified:
-        send_verification_email(user)
-        flash('Te reenviamos el correo de verificación.')
+        try:
+            send_verification_email(user)
+            flash('Te reenviamos el correo de verificación.')
+        except Exception as e:
+            current_app.logger.error(f"Fallo reenvío de correo: {e}")
+            flash('No se pudo enviar el correo de verificación. Revisa la consola si estás en desarrollo.')
     return redirect(url_for('auth.login'))
+
 
 @bp.route('/google-login')
 def google_login():
     if not current_app.config.get('GOOGLE_CLIENT_ID') or not current_app.config.get('GOOGLE_CLIENT_SECRET'):
         flash('Credenciales de Google OAuth no configuradas en el entorno.')
         return redirect(url_for('auth.login'))
-    
+
     if not oauth._registry:
         oauth.init_app(current_app)
         oauth.register(
@@ -100,10 +138,11 @@ def google_login():
             server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
             client_kwargs={'scope': 'openid email profile'}
         )
-    
+
     google = oauth.create_client('google')
     redirect_uri = url_for('auth.google_authorized', _external=True)
     return google.authorize_redirect(redirect_uri)
+
 
 @bp.route('/google-callback')
 def google_authorized():
@@ -129,10 +168,10 @@ def google_authorized():
     user = User.query.filter_by(email=email).first()
     if not user:
         user = User(
-            name=name, 
-            email=email, 
-            role='Client', 
-            oauth_provider='google', 
+            name=name,
+            email=email,
+            role='Client',
+            oauth_provider='google',
             is_verified=True
         )
         db.session.add(user)
@@ -146,12 +185,16 @@ def google_authorized():
     db.session.commit()
 
     login_user(user)
-    flash('Successfully logged in with Google!')
+    flash('¡Sesión iniciada con Google!')
 
     next_url = request.args.get('next')
-    if next_url:
+    if next_url and is_safe_url(next_url):
         return redirect(next_url)
-    return redirect(url_for('main.index'))
+        
+    if user.role == 'Admin':
+        return redirect(url_for('admin.dashboard'))
+    return redirect(url_for('client.dashboard'))
+
 
 @bp.route('/logout')
 @login_required

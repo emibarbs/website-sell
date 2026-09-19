@@ -1,5 +1,6 @@
-from flask import current_app
+from flask import current_app, url_for
 from flask_mail import Message
+
 from app.extensions import mail
 
 
@@ -30,7 +31,7 @@ def send_order_confirmation_email(to_email, customer_name, order_id, plan_name, 
     try:
         mail.send(msg)
     except Exception as e:
-        current_app.logger.error(f"Error enviando correo: {e}")
+        current_app.logger.error(f"Error enviando correo de orden: {e}")
         raise e
 
 
@@ -38,8 +39,6 @@ def send_verification_email(user):
     """
     Envía el correo de verificación de cuenta con un enlace único (válido 24 horas).
     """
-    from flask import url_for
-
     token = user.get_verification_token()
     verify_url = url_for('auth.verify_email', token=token, _external=True)
 
@@ -62,8 +61,6 @@ def send_verification_email(user):
     try:
         mail.send(msg)
     except Exception as e:
-        current_app.logger.error(f"Error enviando correo de verificacion: {e}")
-        # Sin credenciales SMTP reales configuradas, imprime el enlace para poder
-        # verificar la cuenta manualmente durante el desarrollo (no depende de app.debug,
-        # que socketio.run() no siempre propaga a current_app.debug).
-        print(f"\n[DEV] Enlace de verificacion para {user.email}: {verify_url}\n", flush=True)
+        current_app.logger.error(f"Error enviando correo de verificación: {e}")
+        print(f"\n[DEV] Enlace de verificación para {user.email}: {verify_url}\n", flush=True)
+        raise e
