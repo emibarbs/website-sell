@@ -1,15 +1,14 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from flask import current_app, url_for
-from flask_mail import Message
-
-from app.extensions import mail
-
 
 def send_order_confirmation_email(to_email, customer_name, order_id, plan_name, amount):
     """
-    Envía un correo electrónico de confirmación de pago al cliente.
+    Envía un correo electrónico de confirmación de pago al cliente mediante socket directo.
     """
     subject = f"¡Pago Confirmado! Orden {order_id} - Digital Agency"
-    sender = current_app.config.get('MAIL_DEFAULT_SENDER')
+    sender = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME')
 
     html_body = f"""
     <div style="font-family: Arial, sans-serif; background-color: #0A0A0C; color: #F3F4F6; padding: 20px; border-radius: 8px;">
@@ -25,25 +24,18 @@ def send_order_confirmation_email(to_email, customer_name, order_id, plan_name, 
         <p style="color: #9CA3AF; font-size: 12px; margin-top: 30px;">Digital Agency Solutions — Alcance Global</p>
     </div>
     """
-
-    msg = Message(subject=subject, recipients=[to_email], sender=sender, html=html_body)
-
-    try:
-        mail.send(msg)
-    except Exception as e:
-        current_app.logger.error(f"Error enviando correo de orden: {e}")
-        raise e
+    _send_via_socket(to_email, subject, html_body, sender)
 
 
 def send_verification_email(user):
     """
-    Envía el correo de verificación de cuenta con un enlace único (válido 24 horas).
+    Envía el correo de verificación de cuenta de forma segura y evita bloqueos de red.
     """
     token = user.get_verification_token()
     verify_url = url_for('auth.verify_email', token=token, _external=True)
 
     subject = "Verifica tu cuenta - Digital Agency"
-    sender = current_app.config.get('MAIL_DEFAULT_SENDER')
+    sender = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME')
 
     html_body = f"""
     <div style="font-family: Arial, sans-serif; background-color: #0A0A0C; color: #F3F4F6; padding: 20px; border-radius: 8px;">
@@ -56,11 +48,42 @@ def send_verification_email(user):
     </div>
     """
 
-    msg = Message(subject=subject, recipients=[user.email], sender=sender, html=html_body)
-
     try:
-        mail.send(msg)
+        _send_via_socket(user.email, subject, html_body, sender)
     except Exception as e:
-        current_app.logger.error(f"Error enviando correo de verificación: {e}")
+        current_app.logger.error(f"Fallo envío de correo de verificación: {e}")
         print(f"\n[DEV] Enlace de verificación para {user.email}: {verify_url}\n", flush=True)
         raise e
+
+
+def _send_via_socket(to_email, subject, html_body, sender):
+    """
+    Función interna que maneja la conexión SMTP nativa con timeout para evitar cuelgues en Railway.
+    """
+    server_host = current_app.config.get('MAIL_SERVER', 'smtp.gmail.com')
+    server_port = int(current_app.config.get('MAIL_PORT', 587))
+    username = current_app.config.get('MAIL_USERNAME')
+    password = current_app.config.get('MAIL_PASSWORD')
+    use_tls = current_app.config.get('MAIL_USE_TLS', True)
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = to_email
+    msg.attach(MIMEText(html_body, 'html'))
+
+    try:
+        # Timeout estricto de 10s para liberar la app si la red de Railway rechaza el paquete
+        if server_port == 465:
+            smtp_server = smtplib.SMTP_SSL(server_host, server_port, timeout=10)
+        else:
+            smtp_server = smtplib.SMTP(server_host, server_port, timeout=10)
+            if use_tls:
+                smtp_server.starttls()
+
+        smtp_server.login(username, password)
+        smtp_server.sendmail(sender, [to_email], msg.as_string())
+        smtp_server.quit()
+    except Exception as ex:
+        current_app.logger.error(f"Error crítico en socket SMTP hacia {to_email}: {str(ex)}")
+        raise ex
