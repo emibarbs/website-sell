@@ -78,12 +78,11 @@ def register():
 
         try:
             send_verification_email(new_user)
-            flash('¡Cuenta creada! Te enviamos un correo para verificar tu cuenta antes de iniciar sesión.')
         except Exception as e:
             current_app.logger.error(f"Fallo envío de correo en registro: {e}")
-            flash('Cuenta creada. Si no recibes el correo, revisa tu consola de desarrollo o solicita el reenvío.')
 
-        return redirect(url_for('auth.login'))
+        # Muestra directamente la pantalla de confirmación con el e-mail registrado
+        return render_template('auth/unverified.html', email=new_user.email)
 
     return render_template('auth/register.html')
 
@@ -102,9 +101,11 @@ def verify_email(token):
     user.last_login = datetime.utcnow()
     db.session.commit()
 
+    # Inicia la sesión automáticamente tras hacer clic en el enlace
     login_user(user)
     flash('¡Tu cuenta fue verificada correctamente!')
     
+    # Redirige a la página correspondiente según su rol
     if user.role == 'Admin':
         return redirect(url_for('admin.dashboard'))
     return redirect(url_for('client.dashboard'))
