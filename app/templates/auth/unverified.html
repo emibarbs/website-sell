@@ -1,40 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}Verifica tu cuenta | Digital Agency{% endblock %}
-
 {% block content %}
-<div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 85vh; padding: 2rem 0;">
-    <div class="card" style="width: 100%; max-width: 480px; text-align: center; padding: 2.5rem 2rem;">
-        
-        <div style="font-size: 3rem; margin-bottom: 1rem;">
-            ✉️
-        </div>
+<div style="max-w-md; margin: 40px auto; padding: 30px; background-color: #0A0A0C; color: #F3F4F6; border-radius: 8px; border: 1px solid #27272A; text-align: center; font-family: Arial, sans-serif;">
+    <h2 style="color: #38BDF8; margin-bottom: 15px;">Verifica tu cuenta</h2>
+    
+    <p style="margin-bottom: 20px;">
+        Hemos enviado un enlace de verificación a <strong>{{ email }}</strong>.
+    </p>
+    
+    <p style="color: #9CA3AF; font-size: 0.9rem; margin-bottom: 30px;">
+        Revisa tu bandeja de entrada (y la carpeta de Spam). Haz clic en el enlace recibido para activar tu cuenta y acceder al panel.
+    </p>
 
-        <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem;">
-            ¡Casi listo! Verifica tu correo
-        </h2>
-
-        <p style="color: var(--text-muted, #9CA3AF); font-size: 1rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Hemos enviado un correo de confirmación a <strong style="color: #fff;">{{ email }}</strong>. Haz clic en el enlace incluido para activar tu cuenta.
-        </p>
-
-        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color, #27272A); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
-            <p style="font-size: 0.85rem; color: var(--text-muted, #9CA3AF); margin: 0;">
-                💡 <strong>¿No encuentras el correo?</strong><br>
-                Revisa tu carpeta de spam o correo no deseado.
-            </p>
-        </div>
-
-        <a href="{{ url_for('auth.resend_verification', email=email) }}" class="btn-primary" style="display: inline-block; width: 100%; padding: 0.85rem; font-size: 1rem; text-decoration: none; box-sizing: border-box;">
-            Reenviar correo de verificación
-        </a>
-
-        <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted, #9CA3AF);">
-            <a href="{{ url_for('auth.login') }}" style="color: var(--text-muted, #9CA3AF); text-decoration: underline;">
-                Volver al inicio de sesión
-            </a>
-        </p>
-
-    </div>
+    <a href="{{ url_for('auth.resend_verification', email=email) }}" 
+       id="resendBtn" 
+       style="display: inline-block; background-color: #0066FF; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; pointer-events: none; opacity: 0.5;">
+        Reenviar correo en <span id="timer">20</span>s
+    </a>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let timeLeft = 20;
+        const timerElement = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if (timerElement) {
+                timerElement.textContent = timeLeft;
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                // Habilitar el botón
+                resendBtn.style.pointerEvents = 'auto';
+                resendBtn.style.opacity = '1';
+                resendBtn.innerHTML = "Reenviar correo de verificación";
+            }
+        }, 1000);
+    });
+</script>
 {% endblock %}
