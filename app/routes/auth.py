@@ -66,6 +66,15 @@ def register():
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
+            # SI EL USUARIO EXISTE PERO NO ESTÁ VERIFICADO:
+            # Reenviamos el correo y mostramos la pantalla de unverified en lugar de rebotarlo.
+            if not existing_user.is_verified:
+                try:
+                    send_verification_email(existing_user)
+                except Exception as e:
+                    current_app.logger.error(f"Fallo reenvío en registro: {e}")
+                return render_template('auth/unverified.html', email=existing_user.email)
+            
             flash('Ese correo ya está registrado.')
             return render_template('auth/register.html')
 
@@ -73,15 +82,22 @@ def register():
         new_user.set_password(password)
         new_user.apply_admin_bootstrap()
         
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error guardando usuario en BD: {e}")
+            flash('Ocurrió un error al crear la cuenta. Inténtalo nuevamente.')
+            return render_template('auth/register.html')
 
+        # Intentar enviar el correo
         try:
             send_verification_email(new_user)
         except Exception as e:
             current_app.logger.error(f"Fallo envío de correo en registro: {e}")
 
-        # Muestra directamente la pantalla de confirmación con el e-mail registrado
+        # SIEMPRE mostramos la pantalla de verificación
         return render_template('auth/unverified.html', email=new_user.email)
 
     return render_template('auth/register.html')
@@ -101,11 +117,10 @@ def verify_email(token):
     user.last_login = datetime.utcnow()
     db.session.commit()
 
-    # Inicia la sesión automáticamente tras hacer clic en el enlace
+    # Inicia la sesión automáticamente tras verificar
     login_user(user)
     flash('¡Tu cuenta fue verificada correctamente!')
     
-    # Redirige a la página correspondiente según su rol
     if user.role == 'Admin':
         return redirect(url_for('admin.dashboard'))
     return redirect(url_for('client.dashboard'))
@@ -120,7 +135,8 @@ def resend_verification(email):
             flash('Te reenviamos el correo de verificación.')
         except Exception as e:
             current_app.logger.error(f"Fallo reenvío de correo: {e}")
-            flash('No se pudo enviar el correo de verificación. Revisa la consola si estás en desarrollo.')
+            flash('No se pudo enviar el correo de verificación.')
+        return render_template('auth/unverified.html', email=user.email)
     return redirect(url_for('auth.login'))
 
 
