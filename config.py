@@ -11,8 +11,21 @@ def str_to_bool(value, default=False):
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'digital-agency-secret-key'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///site.db'
+    
+    # Manejo de URL de base de datos para PostgreSQL en Railway
+    raw_db_url = os.environ.get('DATABASE_URL') or 'sqlite:///site.db'
+    if raw_db_url and raw_db_url.startswith("postgres://"):
+        raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
+        
+    SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Seguridad de Cookies y Sesión (Necesario para HTTPS en Railway)
+    SESSION_COOKIE_SECURE = str_to_bool(os.environ.get('SESSION_COOKIE_SECURE'), default=True)
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_SECURE = str_to_bool(os.environ.get('REMEMBER_COOKIE_SECURE'), default=True)
+    REMEMBER_COOKIE_HTTPONLY = True
 
     # Stripe
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
