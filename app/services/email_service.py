@@ -1,14 +1,11 @@
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import requests
 from flask import current_app, url_for
 
 def send_order_confirmation_email(to_email, customer_name, order_id, plan_name, amount):
     """
-    Envía un correo electrónico de confirmación de pago al cliente mediante socket directo.
+    Envía un correo de confirmación de pago mediante la API HTTP de Resend.
     """
     subject = f"¡Pago Confirmado! Orden {order_id} - Digital Agency"
-    sender = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME')
 
     html_body = f"""
     <div style="font-family: Arial, sans-serif; background-color: #0A0A0C; color: #F3F4F6; padding: 20px; border-radius: 8px;">
@@ -24,18 +21,17 @@ def send_order_confirmation_email(to_email, customer_name, order_id, plan_name, 
         <p style="color: #9CA3AF; font-size: 12px; margin-top: 30px;">Digital Agency Solutions — Alcance Global</p>
     </div>
     """
-    _send_via_socket(to_email, subject, html_body, sender)
+    _send_via_resend(to_email, subject, html_body)
 
 
 def send_verification_email(user):
     """
-    Envía el correo de verificación de cuenta de forma segura y evita bloqueos de red.
+    Envía el correo de verificación de cuenta mediante la API HTTP de Resend.
     """
     token = user.get_verification_token()
     verify_url = url_for('auth.verify_email', token=token, _external=True)
 
     subject = "Verifica tu cuenta - Digital Agency"
-    sender = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME')
 
     html_body = f"""
     <div style="font-family: Arial, sans-serif; background-color: #0A0A0C; color: #F3F4F6; padding: 20px; border-radius: 8px;">
@@ -49,41 +45,38 @@ def send_verification_email(user):
     """
 
     try:
-        _send_via_socket(user.email, subject, html_body, sender)
+        _send_via_resend(user.email, subject, html_body)
     except Exception as e:
-        current_app.logger.error(f"Fallo envío de correo de verificación: {e}")
+        current_app.logger.error(f"Fallo envío de correo mediante Resend: {e}")
         print(f"\n[DEV] Enlace de verificación para {user.email}: {verify_url}\n", flush=True)
         raise e
 
 
-def _send_via_socket(to_email, subject, html_body, sender):
+def _send_via_resend(to_email, subject, html_body):
     """
-    Función interna que maneja la conexión SMTP nativa con timeout para evitar cuelgues en Railway.
+    Función interna que realiza la petición HTTP POST hacia la API de Resend.
     """
-    server_host = current_app.config.get('MAIL_SERVER', 'smtp.gmail.com')
-    server_port = int(current_app.config.get('MAIL_PORT', 587))
-    username = current_app.config.get('MAIL_USERNAME')
-    password = current_app.config.get('MAIL_PASSWORD')
-    use_tls = current_app.config.get('MAIL_USE_TLS', True)
+    api_key = current_app.config.get('RESEND_API_KEY')
+    
+    if not api_key:
+        raise Exception("Falta configurar la variable RESEND_API_KEY en el entorno de Railway.")
 
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = to_email
-    msg.attach(MIMEText(html_body, 'html'))
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "from": "Digital Agency <onboarding@resend.dev>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html_body
+        },
+        timeout=15
+    )
 
-    try:
-        # Timeout estricto de 10s para liberar la app si la red de Railway rechaza el paquete
-        if server_port == 465:
-            smtp_server = smtplib.SMTP_SSL(server_host, server_port, timeout=10)
-        else:
-            smtp_server = smtplib.SMTP(server_host, server_port, timeout=10)
-            if use_tls:
-                smtp_server.starttls()
-
-        smtp_server.login(username, password)
-        smtp_server.sendmail(sender, [to_email], msg.as_string())
-        smtp_server.quit()
-    except Exception as ex:
-        current_app.logger.error(f"Error crítico en socket SMTP hacia {to_email}: {str(ex)}")
-        raise ex
+    if response.status_code != 200:
+        error_msg = response.text
+        current_app.logger.error(f"Resend API Error: {error_msg}")
+        raise Exception(f"Error enviando correo con Resend: {error_msg}")
