@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.about }} | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+    
+    <!-- Sección de Cabecera con Avatar Técnico Interactivo -->
+    <div class="card" style="display: flex; align-items: center; gap: 3rem; margin-bottom: 3.5rem; flex-wrap: wrap; background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0,102,255,0.08) 100%);">
+        <div class="tech-avatar-box" style="font-size: 5.5rem; text-align: center; min-width: 140px; animation: floatAvatar 3s ease-in-out infinite;">
+            👨‍💻<span style="font-size: 2.2rem; display: block; margin-top: -10px;">⚡</span>
+        </div>
+        <div style="flex: 1; min-width: 280px;">
+            <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #F3F4F6 30%, #38BDF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                {{ t.about_title }}
+            </h1>
+            <p style="color: var(--text-muted); font-size: 1.2rem; line-height: 1.7;">
+                {{ t.about_desc }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Bloques Interactivos de la Agencia -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3.5rem;">
+        
+        <div class="card interactive-feature-card" style="transition: transform 0.3s ease, border-color 0.3s ease;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🌐</div>
+            <h3 style="color: var(--neon-blue); font-size: 1.4rem; margin-bottom: 1rem;">{{ t.global_reach }}</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">{{ t.global_reach_desc }}</p>
+        </div>
+
+        <div class="card interactive-feature-card" style="transition: transform 0.3s ease, border-color 0.3s ease;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🤖</div>
+            <h3 style="color: var(--neon-blue); font-size: 1.4rem; margin-bottom: 1rem;">{{ t.ai_apps }}</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">{{ t.ai_apps_desc }}</p>
+        </div>
+
+        <div class="card interactive-feature-card" style="transition: transform 0.3s ease, border-color 0.3s ease;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚙️</div>
+            <h3 style="color: var(--neon-blue); font-size: 1.4rem; margin-bottom: 1rem;">{{ t.custom_arch }}</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">{{ t.custom_arch_desc }}</p>
+        </div>
+
+    </div>
+
+    <!-- Banner CTA Final con Indicador de Rendimiento -->
+    <div class="card" style="text-align: center; padding: 3.5rem; background: linear-gradient(135deg, rgba(0,102,255,0.15), rgba(56,189,248,0.05)); border: 1px solid rgba(56,189,248,0.3);">
+        <h2 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem;">
+            {% if current_lang == 'es' %}¿Listo para construir el futuro con nosotros?{% else %}Ready to build the future with us?{% endif %}
+        </h2>
+        <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem auto; font-size: 1.05rem;">
+            {% if current_lang == 'es' %}
+            Transformamos tus ideas en arquitecturas web de alto rendimiento impulsadas por inteligencia artificial.
+            {% else %}
+            We transform your ideas into high-performance, AI-driven web architectures.
+            {% endif %}
+        </p>
+        <a href="{{ url_for('main.pricing') }}" class="btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem; display: inline-block;">{{ t.cta_pricing }}</a>
+    </div>
+
+</div>
+
+<style>
+@keyframes floatAvatar {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(3deg); }
+}
+.interactive-feature-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--neon-blue);
+    box-shadow: 0 15px 30px rgba(0, 102, 255, 0.15);
+}
+</style>
+{% endblock %}

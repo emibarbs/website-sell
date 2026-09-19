@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}{{ t.pricing }} | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+    <div class="card" style="text-align: center; margin-bottom: 3.5rem;">
+        <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #F3F4F6 30%, #38BDF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            {% if current_lang == 'es' %}PRECIOS{% else %}PRICING{% endif %}
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.25rem; max-width: 750px; margin: 0 auto;">
+            {% if current_lang == 'es' %}
+            Elige la arquitectura web o paquete de integración de IA definitivo para tu negocio.
+            {% else %}
+            Choose the ultimate web architecture or AI integration package for your business.
+            {% endif %}
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+        
+        <!-- PLAN 1 -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: var(--border-color);">
+            <div>
+                <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--neon-blue);">
+                    {% if current_lang == 'es' %}Plan 1{% else %}Plan 1{% endif %}
+                </h3>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">${{ plan1_price }} <span style="font-size: 1rem; color: var(--text-muted); font-weight: normal;">USD</span></div>
+                
+                <ul style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.2rem; text-align: left;">
+                    {% if current_lang == 'es' %}
+                    <li>Máximo 4 páginas</li>
+                    <li>Podemos agregar los videos que necesites</li>
+                    <li>Botones interactivos de inicio de sesión, panel, creación de logotipos, colores</li>
+                    <li>Página de correo donde los clientes pueden enviar información a tu correo</li>
+                    <li>1 semana y media de trabajo</li>
+                    <li>Buen SEO</li>
+                    <li>Totalmente responsivo (ajustable para móvil, PC o cualquier dispositivo)</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">Sin reembolso</li>
+                    {% else %}
+                    <li>4 pages max</li>
+                    <li>We can add videos that you need</li>
+                    <li>Log in interactive buttons, dashboard, logo creation, colors</li>
+                    <li>Mail page where clients can send info to your email</li>
+                    <li>1 week and a half of work</li>
+                    <li>Good SEO</li>
+                    <li>Fully responsive (adjustable for mobile, PC, or any device)</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">No refund</li>
+                    {% endif %}
+                </ul>
+            </div>
+            <button onclick="handleBuyClick('Plan 1', '${{ plan1_price }} USD', '{{ url_for('payments.checkout', plan_key='plan1') }}')" class="btn-primary" style="width: 100%;">
+                {% if current_lang == 'es' %}Comprar Ahora{% else %}Buy Now{% endif %}
+            </button>
+        </div>
+
+        <!-- PLAN 2 -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: var(--ocean-blue); background: linear-gradient(180deg, var(--card-bg) 0%, rgba(0,102,255,0.06) 100%);">
+            <div>
+                <span style="background: var(--ocean-blue); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                    {% if current_lang == 'es' %}Popular{% else %}Popular{% endif %}
+                </span>
+                <h3 style="font-size: 1.6rem; font-weight: 700; margin-top: 0.75rem; margin-bottom: 0.5rem; color: var(--neon-blue);">
+                    {% if current_lang == 'es' %}Plan 2{% else %}Plan 2{% endif %}
+                </h3>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">${{ plan2_price }} <span style="font-size: 1rem; color: var(--text-muted); font-weight: normal;">USD</span></div>
+                
+                <ul style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.2rem; text-align: left;">
+                    {% if current_lang == 'es' %}
+                    <li>Todo lo del Plan 1</li>
+                    <li>Animaciones incluidas</li>
+                    <li>Máximo 7 páginas</li>
+                    <li>Integración de métodos de pago (o consulta otros métodos)</li>
+                    <li>Chat 1 a 1 contigo + Página de administrador para revisar notificaciones</li>
+                    <li>1 semana y media de trabajo</li>
+                    <li>Mejor SEO</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">Sin reembolso</li>
+                    {% else %}
+                    <li>Everything in Plan 1</li>
+                    <li>Animations included</li>
+                    <li>7 pages max</li>
+                    <li>Payment method integration (or talk about other methods)</li>
+                    <li>1 on 1 chat with you + Admin page to check notifications</li>
+                    <li>1 week and a half of work</li>
+                    <li>Better SEO</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">No refund</li>
+                    {% endif %}
+                </ul>
+            </div>
+            <button onclick="handleBuyClick('Plan 2', '${{ plan2_price }} USD', '{{ url_for('payments.checkout', plan_key='plan2') }}')" class="btn-primary" style="width: 100%;">
+                {% if current_lang == 'es' %}Comprar Ahora{% else %}Buy Now{% endif %}
+            </button>
+        </div>
+
+        <!-- PLAN 3 -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: var(--border-color);">
+            <div>
+                <span style="background: rgba(16,185,129,0.15); color: var(--emerald-green); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                    {% if current_lang == 'es' %}Cotización Personalizada{% else %}Custom Quote{% endif %}
+                </span>
+                <h3 style="font-size: 1.6rem; font-weight: 700; margin-top: 0.75rem; margin-bottom: 0.5rem; color: var(--emerald-green);">
+                    {% if current_lang == 'es' %}Plan 3{% else %}Plan 3{% endif %}
+                </h3>
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">
+                    {% if current_lang == 'es' %}Cotización Personalizada{% else %}Custom Quote{% endif %}
+                </div>
+                
+                <ul style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.2rem; text-align: left;">
+                    {% if current_lang == 'es' %}
+                    <li>Todo lo que necesites</li>
+                    <li>Aplicaciones Personalizadas</li>
+                    <li>Chatbots de IA e Inteligencia Artificial de autoaprendizaje</li>
+                    <li>Sitios web impulsados por IA que asisten a tus clientes</li>
+                    <li>Integraciones de sistemas avanzados</li>
+                    <li>Y mucho más...</li>
+                    {% else %}
+                    <li>Anything you need</li>
+                    <li>Custom Apps</li>
+                    <li>AI Chatbots & self-learning Artificial Intelligence</li>
+                    <li>AI-powered websites that assist your clients</li>
+                    <li>Advanced system integrations</li>
+                    <li>And much more...</li>
+                    {% endif %}
+                </ul>
+            </div>
+            <button onclick="selectPlan3()" class="btn-outline" style="width: 100%; border-color: var(--emerald-green); color: var(--emerald-green); font-weight: 700;">
+                💬 {% if current_lang == 'es' %}Hablar con nosotros (Chat Directo){% else %}Talk with us (Direct Chat){% endif %}
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL POP-UP DE ADVERTENCIA ANTES DE COMPRAR (Plan 1 y Plan 2) -->
+<div id="purchaseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999999; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+    <div class="card" style="width: 100%; max-width: 480px; text-align: center; border: 1px solid var(--neon-blue); box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+        <h3 id="modalPlanTitle" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main);"></h3>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem;">
+            {% if current_lang == 'es' %}
+            ¿No quieres hablar con nosotros primero para saber si estás comprando el plan que necesitas? Te recomendamos consultarlo en nuestro chat antes de realizar tu pago directo.
+            {% else %}
+            Don't you want to talk with us first to make sure you are getting the exact plan you need? We recommend chatting with our team before proceeding.
+            {% endif %}
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-direction: column;">
+            <button onclick="talkToSupport()" class="btn-outline" style="border-color: var(--neon-blue); color: var(--neon-blue); padding: 0.85rem; font-weight: 700;">
+                💬 {% if current_lang == 'es' %}Hablar con nosotros primero{% else %}Talk with us first{% endif %}
+            </button>
+            
+            <a id="checkoutLink" href="#" class="btn-primary" style="padding: 0.85rem; text-decoration: none; text-align: center;">
+                🚀 {% if current_lang == 'es' %}Continuar con la Compra Directa{% else %}Proceed to Direct Checkout{% endif %}
+            </a>
+        </div>
+
+        <button onclick="closePurchaseModal()" style="background: none; border: none; color: var(--text-muted); margin-top: 1.5rem; cursor: pointer; font-size: 0.9rem;">
+            ✕ {% if current_lang == 'es' %}Cancelar{% else %}Cancel{% endif %}
+        </button>
+    </div>
+</div>
+
+<script>
+    const isPricingAuth = {{ 'true' if current_user.is_authenticated else 'false' }};
+    const currentLang = "{{ current_lang }}";
+
+    function handleBuyClick(planName, price, checkoutUrl) {
+        // Muestra siempre el modal de advertencia primero para Plan 1 y Plan 2
+        document.getElementById('modalPlanTitle').innerText = planName + " (" + price + ")";
+        const checkoutLink = document.getElementById('checkoutLink');
+
+        if (!isPricingAuth) {
+            // Si no está logueado, al hacer clic en pagar lo manda al login y luego a Stripe
+            checkoutLink.href = "{{ url_for('auth.login') }}?next=" + encodeURIComponent(checkoutUrl);
+        } else {
+            // Si ya está logueado, lo manda directo al link de pago de Stripe
+            checkoutLink.href = checkoutUrl;
+        }
+
+        document.getElementById('purchaseModal').style.display = 'flex';
+    }
+
+    function closePurchaseModal() {
+        document.getElementById('purchaseModal').style.display = 'none';
+    }
+
+    function talkToSupport() {
+        closePurchaseModal();
+        if (!isPricingAuth) {
+            // Si no está logueado, lo manda a login y al regresar lo devuelve aquí para abrir el chat
+            window.location.href = "{{ url_for('auth.login') }}?next=" + encodeURIComponent(window.location.href);
+            return;
+        }
+
+        // Si ya está logueado, abre el chat directamente y escribe el mensaje de consulta
+        const chatBox = document.getElementById('chatBox');
+        if (chatBox) {
+            chatBox.style.display = 'flex';
+            const body = document.getElementById('chatBody');
+            if (body) {
+                const msg = currentLang === 'es' 
+                    ? "<strong>Support:</strong> ¡Hola! Quiero hablar con ustedes antes de comprar para asegurarme de elegir el plan correcto." 
+                    : "<strong>Support:</strong> Hello! I want to talk with you before buying to make sure I choose the right plan.";
+                body.innerHTML += `<div style="margin-top: 8px; color: var(--neon-blue);">${msg}</div>`;
+                body.scrollTop = body.scrollHeight;
+            }
+        }
+    }
+
+    function selectPlan3() {
+        if (!isPricingAuth) {
+            window.location.href = "{{ url_for('auth.login') }}?next=" + encodeURIComponent(window.location.href);
+            return;
+        }
+        const chatBox = document.getElementById('chatBox');
+        if (chatBox) {
+            chatBox.style.display = 'flex';
+            const body = document.getElementById('chatBody');
+            if (body) {
+                const msg = currentLang === 'es'
+                    ? "<strong>Support:</strong> ¡Hola! Quiero contratar el Plan 3 (Cotización Personalizada). ¡Hablemos de los detalles!"
+                    : "<strong>Support:</strong> Hello! I want to hire Plan 3 (Custom Enterprise). Let's discuss a custom quote!";
+                body.innerHTML += `<div style="margin-top: 8px; color: var(--emerald-green);">${msg}</div>`;
+                body.scrollTop = body.scrollHeight;
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <div>
+            <h1 style="font-size: 2.25rem; margin-bottom: 0.5rem;">Client Dashboard</h1>
+            <p style="color: var(--text-muted);">Bienvenido, {{ current_user.name }}. Gestiona tus proyectos y soporte técnico.</p>
+        </div>
+        <a href="{{ url_for('client.tickets') }}" class="btn-primary">Ver / Crear Tickets</a>
+    </div>
+
+    <!-- Sección de Órdenes y Pagos -->
+    <div class="card" style="margin-bottom: 3rem;">
+        <h3 style="margin-bottom: 1.5rem; color: var(--neon-blue);">Mis Órdenes y Pagos</h3>
+        {% if orders %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem;">
+                            <th style="padding: 1rem;">Order ID</th>
+                            <th style="padding: 1rem;">Plan</th>
+                            <th style="padding: 1rem;">Monto</th>
+                            <th style="padding: 1rem;">Estado</th>
+                            <th style="padding: 1rem;">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr style="border-bottom: 1px solid rgba(39, 39, 42, 0.4);">
+                            <td style="padding: 1rem; font-weight: 600;">{{ order.order_id }}</td>
+                            <td style="padding: 1rem;">{{ order.plan_name }}</td>
+                            <td style="padding: 1rem;">${{ order.amount }} {{ order.currency | upper }}</td>
+                            <td style="padding: 1rem;"><span style="color: var(--emerald-green); font-weight: 600;">{{ order.status }}</span></td>
+                            <td style="padding: 1rem; color: var(--text-muted);">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted);">No tienes órdenes registradas todavía. Explora nuestros <a href="{{ url_for('main.pricing') }}" style="color: var(--neon-blue);">planes</a>.</p>
+        {% endif %}
+    </div>
+
+    <!-- Sección de Tickets Activos -->
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem; color: var(--emerald-green);">Tickets de Soporte Recientes</h3>
+        {% if tickets %}
+            <ul style="list-style: none;">
+                {% for ticket in tickets %}
+                <li style="padding: 1rem 0; border-bottom: 1px solid rgba(39, 39, 42, 0.4); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="font-size: 1.05rem;">{{ ticket.subject }}</strong>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Estado: <span style="color: var(--warning);">{{ ticket.status }}</span></p>
+                    </div>
+                    <a href="{{ url_for('client.view_ticket', ticket_id=ticket.id) }}" class="btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Abrir Chat</a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: var(--text-muted);">No tienes tickets activos.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

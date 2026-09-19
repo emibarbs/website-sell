@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_lang == 'es' %}Cómo Funciona{% else %}How It Works{% endif %} | Digital Agency
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0; display: flex; flex-direction: column; align-items: center;">
+    
+    <div class="card" style="text-align: center; margin-bottom: 3rem; width: 100%; max-width: 950px;">
+        <h1 style="font-size: 3.2rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #F3F4F6 30%, #38BDF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            {% if current_lang == 'es' %}Nuestro Proceso de Trabajo{% else %}Our Working Process{% endif %}
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.25rem;">
+            {% if current_lang == 'es' %}
+            Sigue nuestros 3 sencillos pasos para obtener tu solución digital de alto nivel en línea.
+            {% else %}
+            Follow our 3 simple steps to get your high-end digital solution online.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Contenedor principal con Avatar realista animado y el cuadro de pasos -->
+    <div style="display: flex; align-items: center; gap: 3.5rem; width: 100%; max-width: 950px; justify-content: center; flex-wrap: wrap;">
+        
+        <!-- Persona real/avatar grande animada señalando hacia los pasos -->
+        <div class="realistic-avatar" title="Your Technical Expert">
+            👨‍💼<span class="pointing-finger">👉</span>
+        </div>
+
+        <!-- Cuadro Interactivo de los 3 Pasos con Flechas Grandes -->
+        <div class="card" style="flex-grow: 1; min-width: 340px; max-width: 600px; text-align: center; position: relative; padding: 3.5rem 2.5rem;">
+            
+            <div id="step-number" style="color: var(--neon-blue); font-weight: 700; font-size: 1.2rem; margin-bottom: 0.75rem;">
+                {% if current_lang == 'es' %}PASO 1 DE 3{% else %}STEP 1 OF 3{% endif %}
+            </div>
+            
+            <h2 id="step-title" style="font-size: 2rem; font-weight: 700; margin-bottom: 1.25rem;">
+                {% if current_lang == 'es' %}Selecciona Tu Plan{% else %}Select Your Plan{% endif %}
+            </h2>
+            
+            <p id="step-desc" style="color: var(--text-muted); font-size: 1.2rem; line-height: 1.7; min-height: 100px;">
+                {% if current_lang == 'es' %}
+                Revisa el plan que mejor se adapte a tus necesidades. Si requieres funciones personalizadas o integraciones especializadas, no dudes en hablar con nuestro equipo.
+                {% else %}
+                Review the plan that best fits your needs. If you require custom features or specialized integrations, feel free to talk with our team.
+                {% endif %}
+            </p>
+
+            <!-- Botones de Flechas Grandes y Visibles -->
+            <div style="display: flex; justify-content: space-between; margin-top: 2.5rem; align-items: center;">
+                <button onclick="prevStep()" class="btn-outline" style="padding: 0.75rem 1.5rem; font-size: 1.1rem; font-weight: 700;">
+                    ❮ {% if current_lang == 'es' %}Ant{% else %}Prev{% endif %}
+                </button>
+                <button id="next-btn" onclick="nextStep()" class="btn-primary" style="padding: 0.75rem 1.75rem; font-size: 1.1rem;">
+                    {% if current_lang == 'es' %}Sig{% else %}Next{% endif %} ❯
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* Animación mejorada y más dinámica para la persona */
+.realistic-avatar {
+    font-size: 6rem;
+    position: relative;
+    animation: pointDynamic 2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 20px rgba(56, 189, 248, 0.3));
+}
+.pointing-finger {
+    position: absolute;
+    right: -30px;
+    top: 15px;
+    font-size: 3rem;
+    animation: fingerMove 1s ease-in-out infinite alternate;
+}
+@keyframes pointDynamic {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(-3deg); }
+}
+@keyframes fingerMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(10px); }
+}
+</style>
+
+<script>
+    const pageLang = "{{ current_lang }}";
+    
+    const stepsEn = [
+        { 
+            num: "STEP 1 OF 3", 
+            title: "Select Your Plan", 
+            desc: "Review the plan that best fits your needs. If you require custom features or specialized integrations, feel free to talk with our team." 
+        },
+        { 
+            num: "STEP 2 OF 3", 
+            title: "Purchase & Personalize", 
+            desc: "Complete your purchase and receive a unique order number. Use it to speak directly with us so we can build your site exactly how you want it." 
+        },
+        { 
+            num: "STEP 3 OF 3", 
+            title: "Rapid Build & Delivery 🚗", 
+            desc: "We work on your order as fast as possible, deliver an initial draft for your feedback, apply your requested changes, and hand over the final version." 
+        }
+    ];
+
+    const stepsEs = [
+        { 
+            num: "PASO 1 DE 3", 
+            title: "Selecciona Tu Plan", 
+            desc: "Revisa el plan que mejor se adapte a tus necesidades. Si requieres funciones personalizadas o integraciones especializadas, no dudes en hablar con nuestro equipo." 
+        },
+        { 
+            num: "PASO 2 DE 3", 
+            title: "Compra y Personaliza", 
+            desc: "Completa tu compra y recibe un número de pedido único. Úsalo para hablar directamente con nosotros y así construir tu sitio exactamente como lo deseas." 
+        },
+        { 
+            num: "PASO 3 DE 3", 
+            title: "Construcción Rápida y Entrega 🚗", 
+            desc: "Trabajamos en tu pedido lo más rápido posible, entregamos un borrador inicial para tus comentarios, aplicamos los cambios solicitados y entregamos la versión final." 
+        }
+    ];
+
+    const steps = pageLang === 'es' ? stepsEs : stepsEn;
+    let currentStep = 0;
+
+    function updateStep() {
+        document.getElementById('step-number').innerText = steps[currentStep].num;
+        document.getElementById('step-title').innerText = steps[currentStep].title;
+        document.getElementById('step-desc').innerText = steps[currentStep].desc;
+
+        const nextBtn = document.getElementById('next-btn');
+        if (currentStep === steps.length - 1) {
+            nextBtn.innerText = pageLang === 'es' ? "Comenzar 🚀" : "Get Started 🚀";
+            nextBtn.style.background = "var(--emerald-green)";
+        } else {
+            nextBtn.innerText = pageLang === 'es' ? "Sig ❯" : "Next ❯";
+            nextBtn.style.background = "var(--ocean-blue)";
+        }
+    }
+
+    function nextStep() {
+        if (currentStep === steps.length - 1) {
+            window.location.href = "{{ url_for('main.pricing') }}";
+        } else {
+            currentStep++;
+            updateStep();
+        }
+    }
+
+    function prevStep() {
+        currentStep = (currentStep - 1 + steps.length) % steps.length;
+        updateStep();
+    }
+</script>
+{% endblock %}

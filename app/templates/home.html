@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Digital Agency | The Web, Built for the Present{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three-globe@2.24.7/dist/three-globe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<style>
+    .hero-section {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        padding: 4rem 0 2rem 0;
+        gap: 4rem;
+    }
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #F3F4F6 30%, #38BDF8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hero-desc {
+        color: var(--text-muted);
+        font-size: 1.25rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    .hero-buttons {
+        display: flex;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+    }
+    #globe-container {
+        width: 100%;
+        height: 380px; /* Reducido un poco para que se vea más compacto y elegante */
+        position: relative;
+        cursor: grab;
+        background-color: var(--bg-main) !important;
+    }
+    #globe-container:active { cursor: grabbing; }
+
+    .f1-bottom-section {
+        width: 100%;
+        padding: 3rem 0 5rem 0;
+        text-align: center;
+        position: relative;
+        border-top: 1px solid var(--border-color);
+        margin-top: 2rem;
+    }
+    .f1-track-line {
+        width: 100%;
+        max-width: 800px;
+        height: 8px;
+        background: linear-gradient(90deg, #121216, var(--border-color), #121216);
+        margin: 0 auto 2rem auto;
+        position: relative;
+        border-radius: 4px;
+    }
+    .f1-car-wrapper {
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 310px;
+        cursor: grab;
+        user-select: none;
+        filter: drop-shadow(0 12px 25px rgba(0, 102, 255, 0.5));
+        transition: transform 0.05s ease;
+    }
+    .f1-car-wrapper:active { cursor: grabbing; }
+
+    .f1-reveal-text {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #38BDF8 20%, #ffffff 80%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 0.5px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+        .hero-section { grid-template-columns: 1fr; text-align: center; padding: 2rem 0; gap: 2rem; }
+        .hero-title { font-size: 2.5rem; }
+        .hero-desc { font-size: 1.1rem; }
+        .hero-buttons { justify-content: center; }
+        #globe-container { height: 320px; }
+        .f1-car-wrapper { width: 230px; top: -40px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <div>
+            <h1 class="hero-title">{{ t.hero_title }}</h1>
+            <p class="hero-desc">{{ t.hero_desc }}</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('main.pricing') }}" class="btn-primary" style="padding: 1.1rem 2.2rem; font-size: 1.1rem;">{{ t.cta_pricing }}</a>
+                <a href="{{ url_for('main.how_it_works') }}" class="btn-outline" style="padding: 1.1rem 2.2rem; font-size: 1.1rem;">{{ t.cta_how }}</a>
+            </div>
+        </div>
+        <div>
+            <div id="globe-container"></div>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                {% if current_lang == 'es' %}🌍 Doble clic para identificar un país · Arrastra para girar{% else %}🌍 Double-click to identify a country · Drag to rotate{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="f1-bottom-section">
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">
+            🏎️ 
+            {% if current_lang == 'es' %}
+            ARRASTRA EL AUTO DE F1 A LA IZQUIERDA PARA REVELAR TEXTO / A LA DERECHA PARA OCULTARLO
+            {% else %}
+            Drag F1 Car LEFT to reveal text / RIGHT to hide it
+            {% endif %}
+        </div>
+        
+        <div class="f1-track-line">
+            <div id="f1CarBox" class="f1-car-wrapper" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                <svg viewBox="0 0 700 220" width="100%" height="100%">
+                    <path d="M 560 50 L 630 35 L 630 85 L 560 90 Z" fill="#18181b" stroke="#38bdf8" stroke-width="2.5"/>
+                    <rect x="580" y="55" width="35" height="5" fill="#0066FF" />
+                    <path d="M 360 85 C 430 65, 510 55, 570 80 L 570 130 L 360 130 Z" fill="#f8fafc" stroke="#27272a" stroke-width="2"/>
+                    <path d="M 340 60 L 380 60 L 375 95 L 345 95 Z" fill="#09090b" stroke="#38bdf8" stroke-width="2"/>
+                    <path d="M 260 90 C 280 65, 330 65, 360 90 Z" fill="#1e293b" />
+                    <path d="M 290 72 C 310 66, 330 66, 345 74" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="315" cy="78" r="9" fill="#0066FF" />
+                    <path d="M 130 105 C 200 80, 310 80, 380 105 L 390 145 L 120 145 Z" fill="#e2e8f0" stroke="#27272a" stroke-width="2"/>
+                    <path d="M 200 112 L 240 108 L 240 137 L 200 137 Z" fill="#09090b" stroke="#38bdf8" stroke-width="1.5"/>
+                    <path d="M 30 120 L 140 110 L 140 145 L 45 145 Z" fill="#cbd5e1" stroke="#27272a" stroke-width="2"/>
+                    <path d="M 10 132 L 70 125 L 70 152 L 10 152 Z" fill="#18181b" stroke="#38bdf8" stroke-width="2"/>
+                    <rect x="15" y="136" width="35" height="4" fill="#0066FF" />
+                    <path d="M 60 148 L 590 148 L 570 158 L 80 158 Z" fill="#09090b" />
+                    <g transform="translate(500, 110)">
+                        <circle cx="0" cy="0" r="35" fill="#09090b" stroke="#38bdf8" stroke-width="3.5"/>
+                        <circle cx="0" cy="0" r="22" fill="#18181b" stroke="#64748b" stroke-width="2.5"/>
+                        <circle cx="0" cy="0" r="9" fill="#0066FF" />
+                        <text x="-16" y="-40" fill="#38bdf8" font-size="9" font-family="sans-serif" font-weight="900" letter-spacing="1">DIGITAL</text>
+                    </g>
+                    <g transform="translate(110, 110)">
+                        <circle cx="0" cy="0" r="35" fill="#09090b" stroke="#38bdf8" stroke-width="3.5"/>
+                        <circle cx="0" cy="0" r="22" fill="#18181b" stroke="#64748b" stroke-width="2.5"/>
+                        <circle cx="0" cy="0" r="9" fill="#0066FF" />
+                        <text x="-16" y="-40" fill="#38bdf8" font-size="9" font-family="sans-serif" font-weight="900" letter-spacing="1">AGENCY</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div id="f1Text" class="f1-reveal-text">
+            {% if current_lang == 'es' %}
+            Construimos los sitios web más rápidos del mundo
+            {% else %}
+            We build the fastest websites in the world
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentLang = "{{ current_lang }}";
+
+    const carBox = document.getElementById('f1CarBox');
+    const textReveal = document.getElementById('f1Text');
+    let isDragging = false;
+    let startX = 0;
+    let currentX = 0;
+
+    function startDrag(e) {
+        isDragging = true;
+        startX = (e.clientX || e.touches[0].clientX) - currentX;
+    }
+
+    function moveCar(clientX) {
+        if (!isDragging) return;
+        let x = clientX - startX;
+        if (x > 250) x = 250;
+        if (x < -250) x = -250;
+        currentX = x;
+        carBox.style.transform = `translateX(calc(-50% + ${currentX}px))`;
+
+        let progress = 0;
+        if (currentX < 0) {
+            progress = Math.abs(currentX) / 250;
+        }
+        textReveal.style.opacity = progress;
+        textReveal.style.transform = `translateY(${15 - (progress * 15)}px)`;
+    }
+
+    window.addEventListener('mousemove', (e) => moveCar(e.clientX));
+    window.addEventListener('touchmove', (e) => moveCar(e.touches[0].clientX));
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    // GLOBO TERRÁQUEO 3D INTERACTIVO — lógica en app/static/js/globe.js
+    document.addEventListener('DOMContentLoaded', () => {
+        const globeContainer = document.getElementById('globe-container');
+        if (globeContainer && window.DigitalAgencyGlobe) {
+            window.DigitalAgencyGlobe.init(globeContainer);
+        }
+    });
+</script>
+<script src="{{ url_for('static', filename='js/globe.js') }}"></script>
+{% endblock %}

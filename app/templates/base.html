@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Digital Agency{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{% if current_lang == 'es' %}Agencia digital internacional: sitios web, chatbots de IA y aplicaciones a medida con soporte en vivo.{% else %}International digital agency: websites, AI chatbots and custom apps with live support.{% endif %}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Digital Agency{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% if current_lang == 'es' %}Construimos sitios web, chatbots de IA y aplicaciones que atraen, cautivan y convierten.{% else %}We build websites, AI chatbots & apps that attract, engage, and convert.{% endif %}{% endblock %}">
+    <meta property="og:type" content="website">
+    <link rel="canonical" href="{{ request.url_root }}{{ request.path[1:] }}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%230a0a0c'/%3E%3Cpath d='M30 50L45 65L70 35' stroke='%2338BDF8' stroke-width='9' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='50' cy='50' r='42' stroke='%230066FF' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg-main: #0a0a0c; --card-bg: #121216; --border-color: #27272a;
+            --text-main: #f3f4f6; --text-muted: #9ca3af; --ocean-blue: #0066FF;
+            --neon-blue: #38BDF8; --emerald-green: #10B981; --warning: #F59E0B;
+            --purple-active: #8B5CF6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; position: relative; }
+
+        header { border-bottom: 1px solid var(--border-color); background-color: rgba(10, 10, 12, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 10000; }
+        .nav-container { max-width: 1300px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+
+        /* LOGO SOLO (SIN TEXTO) */
+        .brand-logo { display: flex; align-items: center; text-decoration: none; }
+        .brand-logo svg { width: 44px; height: 44px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.6)); transition: transform 0.3s ease; }
+        .brand-logo:hover svg { transform: scale(1.1) rotate(5deg); }
+
+        .nav-links { display: flex; gap: 1rem; align-items: center; }
+        .nav-links a.nav-item { color: var(--text-muted); text-decoration: none; font-size: 1.05rem; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.2s ease; }
+        .nav-links a.nav-item:hover { color: var(--text-main); background-color: rgba(39, 39, 42, 0.4); }
+        .nav-links a.nav-item.active { color: var(--neon-blue); background-color: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); font-weight: 600; }
+
+        .hamburger-btn { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 40px; height: 40px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; align-items: center; }
+        .hamburger-btn span { display: block; width: 20px; height: 2px; background: var(--text-main); border-radius: 2px; transition: transform 0.25s ease, opacity 0.25s ease; }
+        .hamburger-btn.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger-btn.is-open span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        @media (max-width: 860px) {
+            .hamburger-btn { display: flex; }
+            .nav-links {
+                position: fixed; top: 73px; left: 0; right: 0; z-index: 9998;
+                flex-direction: column; align-items: stretch; gap: 0.4rem;
+                background: var(--card-bg); border-bottom: 1px solid var(--border-color);
+                padding: 1rem 1.25rem 1.5rem; max-height: 0; overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease; opacity: 0;
+            }
+            .nav-links.is-open { max-height: 80vh; opacity: 1; overflow-y: auto; }
+            .nav-links a.nav-item, .nav-links .btn-primary { width: 100%; text-align: center; box-sizing: border-box; }
+            .nav-links .user-dropdown { width: 100%; }
+            .nav-links .user-avatar-btn { width: 100%; justify-content: center; }
+            .nav-links .dropdown-content { position: static; width: 100%; margin-top: 6px; box-shadow: none; }
+            .nav-links .lang-switch { margin-left: 0; justify-content: center; }
+        }
+
+        .btn-primary { background-color: var(--ocean-blue); color: #ffffff !important; padding: 0.6rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; transition: background-color 0.2s; display: inline-block; text-align: center; }
+        .btn-primary:hover { background-color: #0052cc; }
+        .btn-outline { background-color: transparent; color: var(--text-main); padding: 0.6rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1rem; border: 1px solid var(--border-color); cursor: pointer; }
+
+        .lang-switch { display: flex; gap: 0.4rem; background: var(--card-bg); padding: 0.3rem; border-radius: 8px; border: 1px solid var(--border-color); margin-left: 0.5rem; align-items: center; }
+        .lang-switch a { padding: 0.35rem 0.6rem; font-size: 0.9rem; border-radius: 6px; text-decoration: none; color: var(--text-muted); display: flex; align-items: center; gap: 6px; font-weight: 600; transition: all 0.2s ease; }
+        .lang-switch a img { width: 22px; height: 15px; object-fit: cover; border-radius: 3px; transition: transform 0.2s ease; }
+        .lang-switch a:hover img { transform: scale(1.15) rotate(3deg); }
+        .lang-switch a.active { background-color: var(--purple-active); color: #fff; box-shadow: 0 0 12px rgba(139, 92, 246, 0.5); }
+
+        .user-dropdown { position: relative; display: inline-block; }
+        .user-avatar-btn { background: var(--ocean-blue); color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 50px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,102,255,0.3); }
+        .dropdown-content { display: none; position: absolute; right: 0; background-color: var(--card-bg); min-width: 200px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); border: 1px solid var(--border-color); border-radius: 12px; z-index: 99999; overflow: hidden; margin-top: 10px; }
+        .dropdown-content a { color: var(--text-main); padding: 12px 18px; text-decoration: none; display: block; font-size: 0.95rem; transition: background 0.2s, color 0.2s; }
+        .dropdown-content a:hover { background-color: rgba(56,189,248,0.1); color: var(--neon-blue); }
+
+        .container { max-width: 1250px; margin: 0 auto; padding: 0 2rem; width: 100%; flex-grow: 1; position: relative; z-index: 2; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.5rem; }
+        input, textarea, select { width: 100%; padding: 0.85rem 1.2rem; background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1.05rem; margin-top: 0.3rem; }
+
+        /* Chips flotantes interactivos (rediseño con iconos SVG en vez de emojis) */
+        .side-float-element { position: fixed; width: 62px; height: 62px; background: radial-gradient(circle at 32% 28%, rgba(56,189,248,0.35), rgba(18, 18, 22, 0.9) 70%); border: 1px solid rgba(56,189,248,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 12px rgba(56,189,248,0.15); backdrop-filter: blur(6px); z-index: 1000; cursor: pointer; transition: transform 0.25s ease, opacity 0.25s ease; }
+        .side-float-element:hover { transform: scale(1.1); }
+        .side-float-element svg { width: 24px; height: 24px; pointer-events: none; }
+        .side-float-element.popping { animation: bubblePop 0.35s ease forwards; }
+        @keyframes bubblePop {
+            0% { transform: scale(1); opacity: 1; }
+            40% { transform: scale(1.35); opacity: 0.7; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        .pos-1 { left: 4%; top: 20%; animation: floatVert1 7s ease-in-out infinite; }
+        .pos-2 { left: 4%; top: 60%; animation: floatVert2 9s ease-in-out infinite; }
+        .pos-3 { right: 4%; top: 25%; animation: floatVert3 8s ease-in-out infinite; }
+        .pos-4 { right: 4%; top: 65%; animation: floatVert4 6s ease-in-out infinite; }
+
+        @keyframes floatVert1 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-30px) rotate(5deg); } }
+        @keyframes floatVert2 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(25px) rotate(-5deg); } }
+        @keyframes floatVert3 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-25px) rotate(-8deg); } }
+        @keyframes floatVert4 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(30px) rotate(6deg); } }
+
+        @keyframes pulseLive {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .live-dot { display: inline-block; width: 10px; height: 10px; background-color: var(--emerald-green); border-radius: 50%; margin-right: 8px; animation: pulseLive 1.5s infinite; }
+
+        @keyframes pulseAgent {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16,185,129,0.6), 0 0 0 0 rgba(56,189,248,0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16,185,129,0), 0 0 0 9px rgba(56,189,248,0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 0 0 0 rgba(56,189,248,0); }
+        }
+        .agent-pulse-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: linear-gradient(135deg, var(--emerald-green), var(--neon-blue)); animation: pulseAgent 1.8s infinite; margin-right: 8px; flex-shrink: 0; }
+        .chat-agents-status { display: flex; align-items: center; font-size: 0.85rem; color: var(--text-muted); background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 0.85rem; }
+        .chat-agents-status strong { color: var(--emerald-green); margin: 0 4px; }
+
+        #chat-widget { position: fixed; bottom: 25px; right: 25px; z-index: 9999; }
+        .chat-btn { width: 72px; height: 72px; background: linear-gradient(135deg, var(--ocean-blue), var(--neon-blue)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 25px rgba(0,102,255,0.5); transition: transform 0.2s, box-shadow 0.2s; border: 2px solid rgba(255,255,255,0.2); position: relative; }
+        .chat-btn:hover { transform: scale(1.08); box-shadow: 0 8px 30px rgba(56,189,248,0.6); }
+        .chat-btn svg { width: 32px; height: 32px; }
+        .chat-unread-badge { position: absolute; top: -4px; right: -4px; background: var(--warning); color: #1a1a1a; font-size: 0.7rem; font-weight: 800; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid var(--bg-main); }
+        .chat-box { position: absolute; bottom: 90px; right: 0; width: 350px; height: 460px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.7); display: none; flex-direction: column; overflow: hidden; }
+        .chat-header { background: #18181c; padding: 1.1rem; font-weight: 700; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .chat-body { flex-grow: 1; padding: 1rem; overflow-y: auto; font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; }
+        .chat-footer { padding: 0.85rem; border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem; background: #121216; }
+        .chat-footer input { margin-top: 0; padding: 0.6rem; font-size: 0.95rem; }
+        .chat-send-btn { background: var(--ocean-blue); color: #fff; border: none; border-radius: 8px; width: 42px; flex-shrink: 0; cursor: pointer; font-size: 1.1rem; }
+        .chat-msg-row { margin-top: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; }
+        .chat-msg-row.mine { align-self: flex-end; background: rgba(0,102,255,0.18); color: var(--text-main); }
+        .chat-msg-row.theirs { align-self: flex-start; background: rgba(255,255,255,0.05); color: var(--text-main); }
+        .chat-login-cta { text-align: center; padding: 1.5rem 0.5rem; }
+
+        .flash-stack { max-width: 1250px; margin: 1.25rem auto 0; padding: 0 2rem; display: flex; flex-direction: column; gap: 0.6rem; }
+        .flash-msg { padding: 0.9rem 1.2rem; border-radius: 10px; font-size: 0.92rem; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.35); color: var(--text-main); }
+        .flash-msg.is-error { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); }
+
+        footer.site-footer { border-top: 1px solid var(--border-color); background: var(--card-bg); margin-top: 4rem; }
+        .footer-inner { max-width: 1250px; margin: 0 auto; padding: 3rem 2rem 2rem; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2.5rem; }
+        .footer-col h4 { font-size: 0.95rem; color: var(--text-main); margin-bottom: 1rem; }
+        .footer-col p, .footer-col a { color: var(--text-muted); font-size: 0.9rem; text-decoration: none; display: block; margin-bottom: 0.6rem; line-height: 1.6; }
+        .footer-col a:hover { color: var(--neon-blue); }
+        .footer-bottom { border-top: 1px solid var(--border-color); text-align: center; padding: 1.25rem; color: var(--text-muted); font-size: 0.8rem; }
+
+        @media (max-width: 1500px) { .side-float-element { display: none !important; } }
+        @media (max-width: 768px) { .footer-inner { grid-template-columns: 1fr; } }
+
+        @media (max-width: 480px) {
+            #chat-widget { right: 14px; bottom: 14px; }
+            .chat-box { width: calc(100vw - 28px); max-width: 350px; height: min(460px, 70vh); }
+            .chat-btn { width: 60px; height: 60px; }
+            .chat-btn svg { width: 26px; height: 26px; }
+            #adminToastHolder { right: 14px !important; left: 14px; max-width: none !important; }
+            #adminToastHolder > div { max-width: none !important; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="side-float-element pos-1" id="obj-1" style="display: none;" onclick="popBubble('obj-1')" title="{% if current_lang == 'es' %}Burbuja{% else %}Bubble{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18" stroke-linecap="round"/><path d="M7 14h4" stroke-linecap="round"/></svg>
+    </div>
+    <div class="side-float-element pos-2" id="obj-2" style="display: none;" onclick="popBubble('obj-2')" title="{% if current_lang == 'es' %}Burbuja{% else %}Bubble{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.8"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="side-float-element pos-3" id="obj-3" style="display: none;" onclick="popBubble('obj-3')" title="{% if current_lang == 'es' %}Burbuja{% else %}Bubble{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.8"><path d="M4.5 16.5c-1.5 1.5-2 5-2 5s3.5-.5 5-2c.8-.8.8-2.2 0-3s-2.2-.8-3 0z"/><path d="M12 15l-3-3c1-4 4-8 8.5-9.5C19 6 17.5 11 12 15z" stroke-linejoin="round"/><circle cx="15" cy="9" r="1.3" fill="#38BDF8"/></svg>
+    </div>
+    <div class="side-float-element pos-4" id="obj-4" style="display: none;" onclick="popBubble('obj-4')" title="{% if current_lang == 'es' %}Burbuja{% else %}Bubble{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.8"><path d="M7 18a4 4 0 0 1-1-7.87A5 5 0 0 1 15.9 8H16a4.5 4.5 0 0 1 1 8.87" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </div>
+
+    <div id="chat-widget">
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <span style="display: flex; align-items: center;"><span class="live-dot"></span>💬 {% if current_lang == 'es' %}Soporte de Agencia{% else %}Agency Support{% endif %}</span>
+                <span style="cursor: pointer;" onclick="closeChat()">✕</span>
+            </div>
+            <div class="chat-body" id="chatBody">
+                {% if current_user.is_authenticated %}
+                    <div class="chat-agents-status">
+                        <span class="agent-pulse-dot"></span>
+                        <span><strong id="agentsOnlineCount">{{ agents_online }}</strong>{{ t.agents_online_label }}</span>
+                    </div>
+                    <p style="line-height: 1.5;">{{ t.chat_welcome }}</p>
+                    <div id="chatMessages"></div>
+                {% endif %}
+            </div>
+            <div class="chat-footer">
+                {% if current_user.is_authenticated %}
+                    <input type="text" id="chatInput" placeholder="{{ t.chat_placeholder }}" onkeypress="handleChatKeypress(event)">
+                    <button class="chat-send-btn" onclick="sendWidgetMessage()">➤</button>
+                {% endif %}
+            </div>
+        </div>
+        <button class="chat-btn" onclick="checkAuthAndToggleChat()" aria-label="Chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M21 12c0 4.4-4 8-9 8-1.2 0-2.4-.2-3.4-.6L3 20l1.1-4.1A7.6 7.6 0 0 1 3 12c0-4.4 4-8 9-8s9 3.6 9 8z" stroke-linejoin="round"/><circle cx="8.5" cy="12" r="1" fill="white" stroke="none"/><circle cx="12" cy="12" r="1" fill="white" stroke="none"/><circle cx="15.5" cy="12" r="1" fill="white" stroke="none"/></svg>
+            <span class="chat-unread-badge" id="chatUnreadBadge">1</span>
+        </button>
+    </div>
+
+    <header>
+        <div class="nav-container">
+            <!-- LOGO LIMPIO (SOLO EL ISOTIPO SIN TEXTO) -->
+            <a href="{{ url_for('main.index') }}" class="brand-logo" title="Digital Agency">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" stroke="#0066FF" stroke-width="6" stroke-dasharray="10 5" opacity="0.4"/>
+                    <path d="M30 50L45 65L70 35" stroke="#38BDF8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="50" cy="50" r="42" stroke="url(#paint0_linear)" stroke-width="4"/>
+                    <defs>
+                        <linearGradient id="paint0_linear" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#38BDF8"/>
+                            <stop offset="1" stop-color="#0066FF"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </a>
+
+            <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('main.index') }}" class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">{{ t.home }}</a>
+                <a href="{{ url_for('main.about') }}" class="nav-item {% if request.endpoint == 'main.about' %}active{% endif %}">{{ t.about }}</a>
+                <a href="{{ url_for('main.how_it_works') }}" class="nav-item {% if request.endpoint == 'main.how_it_works' %}active{% endif %}">{{ t.how }}</a>
+                <a href="{{ url_for('main.pricing') }}" class="nav-item {% if request.endpoint == 'main.pricing' %}active{% endif %}">{{ t.pricing }}</a>
+
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'Admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="nav-item" style="color: var(--emerald-green); font-weight: 600;">{{ t.admin }}</a>
+                    {% endif %}
+                    <div class="user-dropdown">
+                        <button type="button" class="user-avatar-btn" id="userMenuBtn">
+                            <span>👤</span> {{ current_user.name }} ▾
+                        </button>
+                        <div class="dropdown-content" id="userDropdownMenu">
+                            {% if current_user.role == 'Client' %}
+                                <a href="{{ url_for('client.dashboard') }}">{{ t.orders_and_tickets }}</a>
+                            {% else %}
+                                <a href="{{ url_for('admin.dashboard') }}">{{ t.admin_panel }}</a>
+                            {% endif %}
+                            <a href="{{ url_for('auth.logout') }}" style="color: #f87171;">{{ t.log_out }}</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn-primary">{{ t.login }}</a>
+                {% endif %}
+
+                <div class="lang-switch">
+                    <a href="{{ url_for('set_language', lang='en') }}" class="{% if current_lang == 'en' %}active{% endif %}" title="English">
+                        <img src="https://flagcdn.com/w40/us.png" alt="USA Flag"> ENG
+                    </a>
+                    <a href="{{ url_for('set_language', lang='es') }}" class="{% if current_lang == 'es' %}active{% endif %}" title="Español">
+                        <img src="https://flagcdn.com/w40/es.png" alt="Spain Flag"> ESP
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-stack">
+                    {% for message in messages %}
+                        {% set is_error = ('❌' in message) or ('inválid' in message|lower) or ('incorrect' in message|lower) or ('no se pudo' in message|lower) or ('failed' in message|lower) or ('denegad' in message|lower) or ('restringid' in message|lower) or ('denied' in message|lower) %}
+                        <div class="flash-msg{% if is_error %} is-error{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Digital Agency</h4>
+                <p>{% if current_lang == 'es' %}Agencia internacional de desarrollo web, chatbots de IA y aplicaciones a medida.{% else %}International web development agency, AI chatbots and custom applications.{% endif %}</p>
+            </div>
+            <div class="footer-col">
+                <h4>{% if current_lang == 'es' %}Enlaces{% else %}Links{% endif %}</h4>
+                <a href="{{ url_for('main.index') }}">{{ t.home }}</a>
+                <a href="{{ url_for('main.about') }}">{{ t.about }}</a>
+                <a href="{{ url_for('main.how_it_works') }}">{{ t.how }}</a>
+                <a href="{{ url_for('main.pricing') }}">{{ t.pricing }}</a>
+            </div>
+            <div class="footer-col">
+                <h4>{% if current_lang == 'es' %}Cuenta{% else %}Account{% endif %}</h4>
+                <a href="{{ url_for('auth.login') }}">{{ t.login }}</a>
+                <a href="{{ url_for('auth.register') }}">{% if current_lang == 'es' %}Registrarse{% else %}Register{% endif %}</a>
+            </div>
+        </div>
+        <div class="footer-bottom">&copy; 2026 Digital Agency Solutions — {% if current_lang == 'es' %}Alcance Global{% else %}Global Reach{% endif %}</div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const IS_AUTHENTICATED = {{ 'true' if current_user.is_authenticated else 'false' }};
+        const IS_ADMIN = {{ 'true' if (current_user.is_authenticated and current_user.role == 'Admin') else 'false' }};
+        const CURRENT_LANG = "{{ current_lang }}";
+        let socket = null;
+        let widgetTicketId = null;
+
+        if (IS_AUTHENTICATED) {
+            // 'polling' primero: el servidor de desarrollo de Werkzeug (async_mode='threading')
+            // no soporta de forma fiable el upgrade a WebSocket; Socket.IO sube de transporte
+            // automáticamente si el servidor de producción (gunicorn+eventlet) sí lo soporta.
+            socket = io({ transports: ['polling', 'websocket'] });
+
+            socket.on('new_message', (data) => {
+                if (IS_ADMIN) return; // el widget del admin no muestra su propio panel de tickets aquí
+                if (widgetTicketId && data.ticket_id !== widgetTicketId) return;
+                widgetTicketId = data.ticket_id;
+                appendWidgetMessage(data);
+                const box = document.getElementById('chatBox');
+                if (!box || box.style.display !== 'flex') {
+                    const badge = document.getElementById('chatUnreadBadge');
+                    if (badge) badge.style.display = 'flex';
+                }
+            });
+
+            socket.on('widget_ticket_ready', (data) => { widgetTicketId = data.ticket_id; });
+
+            socket.on('ticket_closed', (data) => {
+                if (IS_ADMIN) return;
+                if (!widgetTicketId || data.ticket_id !== widgetTicketId) return;
+                const container = document.getElementById('chatMessages');
+                if (container) {
+                    const row = document.createElement('div');
+                    row.style.cssText = 'margin-top:10px;padding:8px 12px;border-radius:10px;font-size:0.85rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);color:var(--warning);text-align:center;';
+                    row.textContent = data.reason;
+                    container.appendChild(row);
+                    const body = document.getElementById('chatBody');
+                    if (body) body.scrollTop = body.scrollHeight;
+                }
+                widgetTicketId = null;
+                const input = document.getElementById('chatInput');
+                if (input) input.disabled = true;
+            });
+
+            if (IS_ADMIN) {
+                socket.on('admin_alert', (data) => {
+                    if (data.kind === 'ticket_closed') {
+                        showAdminToast('closed', `${CURRENT_LANG === 'es' ? 'Chat cerrado' : 'Chat closed'}: ${data.subject}`);
+                        return;
+                    }
+                    showAdminToast(data.kind === 'order' ? 'order' : 'message',
+                        data.kind === 'order' ? `${CURRENT_LANG === 'es' ? 'Nuevo pedido' : 'New order'}` : `${data.sender_name}: ${data.preview}`);
+                    playMessageSound();
+                });
+                socket.on('new_order', (data) => {
+                    const label = CURRENT_LANG === 'es'
+                        ? `Nuevo pedido ${data.order_id} — ${data.plan_name} ($${Number(data.amount).toFixed(2)})`
+                        : `New order ${data.order_id} — ${data.plan_name} ($${Number(data.amount).toFixed(2)})`;
+                    showAdminToast('order', label);
+                    playOrderSound();
+                });
+            }
+        }
+
+        function appendWidgetMessage(data) {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'chat-msg-row ' + (data.is_admin ? 'theirs' : 'mine');
+            row.innerHTML = `<strong>${data.is_admin ? (CURRENT_LANG === 'es' ? 'Soporte' : 'Support') : (CURRENT_LANG === 'es' ? 'Tú' : 'You')}:</strong> ${escapeHtml(data.body)}`;
+            container.appendChild(row);
+            const body = document.getElementById('chatBody');
+            if (body) body.scrollTop = body.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.innerText = str;
+            return div.innerHTML;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            ['obj-1', 'obj-2', 'obj-3', 'obj-4'].forEach(id => {
+                const poppedData = localStorage.getItem(id);
+                const el = document.getElementById(id);
+                if (poppedData) {
+                    const poppedTime = parseInt(poppedData, 10);
+                    const now = new Date().getTime();
+                    if (now - poppedTime < 3600000) {
+                        // Oculto
+                    } else {
+                        localStorage.removeItem(id);
+                        if (el) el.style.display = 'flex';
+                    }
+                } else {
+                    if (el) el.style.display = 'flex';
+                }
+            });
+
+            const menuBtn = document.getElementById('userMenuBtn');
+            const dropdownMenu = document.getElementById('userDropdownMenu');
+
+            if (menuBtn && dropdownMenu) {
+                menuBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
+                };
+                dropdownMenu.onclick = function(e) { e.stopPropagation(); };
+                window.addEventListener('click', () => { dropdownMenu.style.display = 'none'; });
+            }
+
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const navLinks = document.getElementById('navLinks');
+            if (hamburgerBtn && navLinks) {
+                hamburgerBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    hamburgerBtn.classList.toggle('is-open');
+                    navLinks.classList.toggle('is-open');
+                };
+                navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                    hamburgerBtn.classList.remove('is-open');
+                    navLinks.classList.remove('is-open');
+                }));
+                window.addEventListener('click', () => {
+                    hamburgerBtn.classList.remove('is-open');
+                    navLinks.classList.remove('is-open');
+                });
+                navLinks.addEventListener('click', (e) => e.stopPropagation());
+            }
+        });
+
+        function popBubble(id) {
+            const el = document.getElementById(id);
+            if (el && el.style.display !== 'none' && !el.classList.contains('popping')) {
+                el.classList.add('popping');
+                setTimeout(() => {
+                    el.style.display = 'none';
+                    el.classList.remove('popping');
+                    localStorage.setItem(id, new Date().getTime().toString());
+                }, 350);
+            }
+        }
+
+        function checkAuthAndToggleChat() {
+            if (!IS_AUTHENTICATED) {
+                window.location.href = "{{ url_for('auth.login', next=request.path) }}";
+                return;
+            }
+            const box = document.getElementById('chatBox');
+            if (box) {
+                box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+                if (box.style.display === 'flex') {
+                    const badge = document.getElementById('chatUnreadBadge');
+                    if (badge) badge.style.display = 'none';
+                    const body = document.getElementById('chatBody');
+                    if (body) body.scrollTop = body.scrollHeight;
+                }
+            }
+        }
+
+        function closeChat() {
+            const box = document.getElementById('chatBox');
+            if (box) box.style.display = 'none';
+        }
+
+        function sendWidgetMessage() {
+            const input = document.getElementById('chatInput');
+            if (!input || !input.value.trim() || !socket) return;
+            const body = input.value.trim();
+            socket.emit('widget_message', { body: body });
+            input.value = '';
+        }
+
+        function handleChatKeypress(e) {
+            if (e.key === 'Enter') sendWidgetMessage();
+        }
+
+        // ---- Notificaciones sonoras sintetizadas (Web Audio API, sin archivos externos) ----
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+        function playTone(freq, start, duration, gainValue) {
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, ctx.currentTime + start);
+            gain.gain.linearRampToValueAtTime(gainValue, ctx.currentTime + start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + duration + 0.05);
+        }
+        function playMessageSound() {
+            try { playTone(720, 0, 0.12, 0.35); playTone(980, 0.13, 0.18, 0.3); } catch (e) {}
+        }
+        function playOrderSound() {
+            try {
+                playTone(660, 0, 0.15, 0.4); playTone(880, 0.16, 0.15, 0.4); playTone(1180, 0.32, 0.3, 0.4);
+                playTone(660, 0.75, 0.15, 0.4); playTone(880, 0.91, 0.15, 0.4); playTone(1180, 1.07, 0.3, 0.4);
+            } catch (e) {}
+        }
+
+        // ---- Toasts de administrador ----
+        function showAdminToast(kind, text) {
+            let holder = document.getElementById('adminToastHolder');
+            if (!holder) {
+                holder = document.createElement('div');
+                holder.id = 'adminToastHolder';
+                holder.style.cssText = 'position:fixed;top:90px;right:25px;z-index:99999;display:flex;flex-direction:column;gap:10px;';
+                document.body.appendChild(holder);
+            }
+            const toast = document.createElement('div');
+            const colors = { order: 'var(--emerald-green)', message: 'var(--neon-blue)', closed: 'var(--warning)' };
+            const icons = { order: '🛒', message: '💬', closed: '🔒' };
+            const labels = {
+                order: CURRENT_LANG === 'es' ? 'Nuevo Pedido' : 'New Order',
+                message: CURRENT_LANG === 'es' ? 'Nuevo Mensaje' : 'New Message',
+                closed: CURRENT_LANG === 'es' ? 'Chat Cerrado' : 'Chat Closed',
+            };
+            const color = colors[kind] || colors.message;
+            toast.style.cssText = `background:var(--card-bg);border:1px solid ${color};color:var(--text-main);padding:0.9rem 1.2rem;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.6);font-size:0.9rem;max-width:320px;`;
+            toast.innerHTML = `<strong style="color:${color};">${icons[kind] || icons.message} ${labels[kind] || labels.message}</strong><div style="margin-top:4px;">${escapeHtml(text)}</div>`;
+            holder.appendChild(toast);
+            setTimeout(() => { toast.style.transition = 'opacity 0.4s ease'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 6000);
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

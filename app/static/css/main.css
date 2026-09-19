@@ -1,0 +1,189 @@
+:root {
+    --bg-main: #0A0A0C;
+    --card-bg: #121216;
+    --border-color: #27272A;
+    --ocean-blue: #0066FF;
+    --emerald-green: #10B981;
+    --neon-blue: #38BDF8;
+    --text-main: #F3F4F6;
+    --text-muted: #9CA3AF;
+    --text-disabled: #6B7280;
+    --error: #EF4444;
+    --warning: #F59E0B;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Cursor minimalista personalizado */
+@media (pointer: fine) {
+    body {
+        cursor: default;
+    }
+    a, button, input, select, textarea {
+        cursor: pointer;
+    }
+}
+
+/* Contenedores y Secciones */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+header {
+    background-color: rgba(10, 10, 12, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-area {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-main);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5r em;
+}
+
+.logo-area span {
+    color: var(--emerald-green);
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+nav a:hover {
+    color: var(--neon-blue);
+}
+
+/* Botones con estilo moderno */
+.btn-primary {
+    background-color: var(--ocean-blue);
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: #0052cc;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--text-main);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.btn-outline:hover {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+/* Tarjetas */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: border-color 0.2s ease;
+}
+
+.card:hover {
+    border-color: var(--ocean-blue);
+}
+
+/* Formularios y Inputs */
+input, textarea, select {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--ocean-blue);
+    box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2);
+}
+
+/* Alertas y Flashes */
+.alert {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.alert-success { background-color: rgba(16, 185, 129, 0.15); border: 1px solid var(--emerald-green); color: var(--emerald-green); }
+.alert-danger { background-color: rgba(239, 68, 68, 0.15); border: 1px solid var(--error); color: var(--error); }
+.alert-warning { background-color: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); color: var(--warning); }
+.alert-info { background-color: rgba(56, 189, 248, 0.15); border: 1px solid var(--neon-blue); color: var(--neon-blue); }
+
+/* Footer */
+footer {
+    border-top: 1px solid var(--border-color);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-disabled);
+    font-size: 0.85rem;
+    margin-top: 4rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    nav ul {
+        display: none; /* Se puede expandir con menú hamburguesa en fase avanzada */
+    }
+    .container {
+        padding: 0 1rem;
+    }
+}

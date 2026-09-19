@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Orders | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem;">Gestión de Órdenes y Pagos</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-outline" style="font-size: 0.85rem;">Volver al Dashboard</a>
+    </div>
+
+    <div class="card">
+        {% if orders %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem;">
+                            <th style="padding: 1rem;">Order ID</th>
+                            <th style="padding: 1rem;">Cliente ID</th>
+                            <th style="padding: 1rem;">Plan</th>
+                            <th style="padding: 1rem;">Precio</th>
+                            <th style="padding: 1rem;">Estado</th>
+                            <th style="padding: 1rem;">Stripe Session</th>
+                            <th style="padding: 1rem;">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr style="border-bottom: 1px solid rgba(39, 39, 42, 0.4);">
+                            <td style="padding: 1rem; font-weight: 600;">{{ order.order_id }}</td>
+                            <td style="padding: 1rem;">#{{ order.customer_id }}</td>
+                            <td style="padding: 1rem;">{{ order.plan_name }}</td>
+                            <td style="padding: 1rem;">${{ order.amount }} {{ order.currency | upper }}</td>
+                            <td style="padding: 1rem;"><span style="color: var(--emerald-green); font-weight: 600;">{{ order.status }}</span></td>
+                            <td style="padding: 1rem; color: var(--text-disabled); font-size: 0.8rem;">{{ order.stripe_session_id[:20] }}...</td>
+                            <td style="padding: 1rem; color: var(--text-muted); font-size: 0.9rem;">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted);">No hay órdenes registradas en el sistema.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

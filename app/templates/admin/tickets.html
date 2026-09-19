@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Tickets | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem;">Gestión de Tickets de Soporte</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-outline" style="font-size: 0.85rem;">Volver al Dashboard</a>
+    </div>
+
+    <div class="card">
+        {% if tickets %}
+            {% for ticket in tickets %}
+            <div style="padding: 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; background-color: var(--bg-main); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">{{ ticket.subject }}</h4>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">Cliente ID: #{{ ticket.user_id }} | Estado: <span style="color: var(--warning);">{{ ticket.status }}</span></p>
+                </div>
+                <a href="{{ url_for('admin.view_ticket', ticket_id=ticket.id) }}" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Atender Chat</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: var(--text-muted);">No hay tickets de soporte activos.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Register | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 85vh; padding: 2rem 0;">
+    <div class="card" style="width: 100%; max-width: 440px; text-align: center;">
+        
+        <!-- Pestañas de Navegación Login / Register -->
+        <div style="display: flex; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <a href="{{ url_for('auth.login') }}" style="flex: 1; font-weight: 600; font-size: 1.2rem; color: var(--text-muted); text-decoration: none; padding-bottom: 0.5rem; transition: color 0.2s;">
+                {{ t.login }}
+            </a>
+            <div style="flex: 1; font-weight: 700; font-size: 1.2rem; color: var(--neon-blue); border-bottom: 2px solid var(--neon-blue); padding-bottom: 0.5rem;">
+                {% if current_lang == 'es' %}Registrarse{% else %}Register{% endif %}
+            </div>
+        </div>
+
+        <!-- Formulario de Registro -->
+        <form method="POST" style="text-align: left;">
+            <div style="margin-bottom: 1.25rem;">
+                <label style="font-size: 0.9rem; color: var(--text-muted);">Full Name</label>
+                <input type="text" name="name" required placeholder="John Doe">
+            </div>
+            <div style="margin-bottom: 1.25rem;">
+                <label style="font-size: 0.9rem; color: var(--text-muted);">Email</label>
+                <input type="email" name="email" required placeholder="name@example.com">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="font-size: 0.9rem; color: var(--text-muted);">Password</label>
+                <input type="password" name="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1.05rem;">
+                {% if current_lang == 'es' %}Crear Cuenta{% else %}Create Account{% endif %}
+            </button>
+        </form>
+
+        <!-- Enlace para volver al login -->
+        <p style="margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-muted);">
+            {% if current_lang == 'es' %}¿Ya tienes una cuenta?{% else %}Already have an account?{% endif %} 
+            <a href="{{ url_for('auth.login') }}" style="color: var(--neon-blue); text-decoration: none; font-weight: 600;">
+                {{ t.login }}
+            </a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Pricing Settings | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0; max-width: 700px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem;">Sincronización de Precios</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-outline" style="font-size: 0.85rem;">Volver al Dashboard</a>
+    </div>
+
+    <div class="card">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+            Modifica los precios del Plan 1 y el Plan 2. Al guardar, se crea automáticamente un nuevo precio en Stripe,
+            se desactiva el anterior y el botón "Comprar Ahora" de la página de precios cobrará el nuevo monto de inmediato.
+        </p>
+
+        <form method="POST" action="{{ url_for('admin.pricing_settings') }}">
+            <div style="margin-bottom: 1.5rem;">
+                <label for="plan1_price" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Precio Plan 1 (USD)</label>
+                <input type="text" id="plan1_price" name="plan1_price" value="{{ plan1_price }}" required>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label for="plan2_price" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Precio Plan 2 (USD)</label>
+                <input type="text" id="plan2_price" name="plan2_price" value="{{ plan2_price }}" required>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%;">Guardar Cambios de Precios</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

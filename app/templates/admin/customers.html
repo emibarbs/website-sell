@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Customers | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem;">Clientes Registrados</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-outline" style="font-size: 0.85rem;">Volver al Dashboard</a>
+    </div>
+
+    <div class="card">
+        {% if customers %}
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem;">
+                        <th style="padding: 1rem;">ID</th>
+                        <th style="padding: 1rem;">Nombre</th>
+                        <th style="padding: 1rem;">Correo Electrónico</th>
+                        <th style="padding: 1rem;">Rol</th>
+                        <th style="padding: 1rem;">Fecha de Registro</th>
+                        <th style="padding: 1rem;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr style="border-bottom: 1px solid rgba(39, 39, 42, 0.4);">
+                        <td style="padding: 1rem;">#{{ customer.id }}</td>
+                        <td style="padding: 1rem; font-weight: 600;">{{ customer.name }}</td>
+                        <td style="padding: 1rem; color: var(--neon-blue);">{{ customer.email }}</td>
+                        <td style="padding: 1rem;">{{ customer.role }}</td>
+                        <td style="padding: 1rem; color: var(--text-muted); font-size: 0.9rem;">{{ customer.created_at.strftime('%Y-%m-%d %H:%M') if customer.created_at else '' }}</td>
+                        <td style="padding: 1rem;">
+                            <form action="{{ url_for('admin.delete_user', user_id=customer.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar a este usuario?');">
+                                <button type="submit" class="btn btn-danger btn-sm" style="background-color: #ef4444; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: var(--text-muted);">No hay clientes registrados.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

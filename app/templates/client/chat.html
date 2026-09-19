@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Ticket #{{ ticket.id }} | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0; max-width: 900px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="font-size: 1.75rem; margin-bottom: 0.25rem;">{{ ticket.subject }}</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Estado: <span style="color: var(--warning);">{{ ticket.status }}</span> | Típico tiempo de respuesta: hasta 5 minutos</p>
+        </div>
+        <a href="{{ url_for('client.tickets') }}" class="btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Volver a Tickets</a>
+    </div>
+
+    <!-- Caja de Conversación -->
+    <div class="card" style="display: flex; flexDirection: column; height: 500px; padding: 1.5rem; overflow: hidden;">
+        
+        <!-- Mensajes -->
+        <div id="messagesContainer" style="flex-grow: 1; overflow-y: auto; padding-right: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Mensaje inicial del ticket -->
+            <div style="background-color: var(--bg-main); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); max-width: 80%;">
+                <span style="font-size: 0.75rem; color: var(--emerald-green); display: block; margin-bottom: 0.25rem;">Descripción Inicial del Proyecto</span>
+                <p style="font-size: 0.95rem;">{{ ticket.description }}</p>
+            </div>
+
+            {% for msg in messages %}
+            <div style="background-color: {% if msg.sender_id == current_user.id %}rgba(0, 102, 255, 0.15){% else %}var(--bg-main){% endif %}; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); max-width: 80%; align-self: {% if msg.sender_id == current_user.id %}flex-end{% else %}flex-start{% endif %};">
+                <span style="font-size: 0.75rem; color: var(--text-disabled); display: block; margin-bottom: 0.25rem;">{{ msg.timestamp.strftime('%H:%M') }}</span>
+                <p style="font-size: 0.95rem;">{{ msg.body }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Formulario para Enviar Mensaje -->
+        <form method="POST" style="display: flex; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <input type="text" name="body" required placeholder="Escribe tu mensaje aquí..." style="margin: 0; flex-grow: 1;">
+            <button type="submit" class="btn-primary" style="padding: 0 1.5rem;">Enviar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const TICKET_ID = {{ ticket.id }};
+    const CURRENT_USER_ID = {{ current_user.id }};
+    if (socket) {
+        socket.emit('join_ticket', { ticket_id: TICKET_ID });
+        socket.on('new_message', (data) => {
+            if (data.ticket_id !== TICKET_ID) return;
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            const mine = data.sender_id === CURRENT_USER_ID;
+            const div = document.createElement('div');
+            div.style.cssText = `background-color:${mine ? 'rgba(0, 102, 255, 0.15)' : 'var(--bg-main)'};padding:1rem;border-radius:8px;border:1px solid var(--border-color);max-width:80%;align-self:${mine ? 'flex-end' : 'flex-start'};`;
+            div.innerHTML = `<span style="font-size:0.75rem;color:var(--text-disabled);display:block;margin-bottom:0.25rem;">${data.timestamp}</span><p style="font-size:0.95rem;">${escapeHtml(data.body)}</p>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        });
+        socket.on('ticket_closed', (data) => {
+            if (data.ticket_id !== TICKET_ID) return;
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                const div = document.createElement('div');
+                div.style.cssText = 'background:rgba(245,158,11,0.12);border:1px solid var(--warning);padding:1rem;border-radius:8px;text-align:center;color:var(--warning);font-weight:600;';
+                div.textContent = data.reason;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            }
+            document.querySelectorAll('input[name="body"], button[type="submit"]').forEach(el => el.disabled = true);
+            setTimeout(() => { window.location.href = "{{ url_for('client.tickets') }}"; }, 4000);
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Support Tickets | Digital Agency{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0; max-width: 900px;">
+    <h1 style="font-size: 2.25rem; margin-bottom: 2rem;">Crear y Gestionar Tickets</h1>
+
+    <!-- Formulario para Nuevo Ticket -->
+    <div class="card" style="margin-bottom: 3rem;">
+        <h3 style="margin-bottom: 1.5rem; color: var(--neon-blue);">Nuevo Requerimiento o Soporte</h3>
+        <form method="POST" action="{{ url_for('client.create_ticket') }}">
+            <div style="margin-bottom: 1.25rem;">
+                <label for="subject" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Asunto del Proyecto / Ticket</label>
+                <input type="text" id="subject" name="subject" required placeholder="Ej. Requisitos para Plan 1 o Modificación de Diseño">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label for="description" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Descripción Detallada / Referencias</label>
+                <textarea id="description" name="description" rows="4" required placeholder="Explícanos qué necesitas, paleta de colores, referencias o funcionalidades..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Enviar Ticket</button>
+        </form>
+    </div>
+
+    <!-- Listado de Tickets -->
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem;">Historial de Tickets</h3>
+        {% if tickets %}
+            {% for ticket in tickets %}
+            <div style="padding: 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; background-color: var(--bg-main);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h4 style="font-size: 1.1rem; color: var(--text-main);">{{ ticket.subject }}</h4>
+                    <span style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; background-color: rgba(56, 189, 248, 0.1); color: var(--neon-blue);">{{ ticket.status }}</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">{{ ticket.description }}</p>
+                <a href="{{ url_for('client.view_ticket', ticket_id=ticket.id) }}" class="btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Entrar al Chat del Ticket</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: var(--text-muted);">No has creado ningún ticket todavía.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

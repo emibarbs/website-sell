@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_lang == 'es' %}Iniciar Sesión{% else %}Login{% endif %} | Digital Agency
+{% endblock %}
+
+{% block content %}
+<div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 2rem 0;">
+    <div class="card" style="width: 100%; max-width: 450px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
+        
+        <!-- Pestañas de Navegación Login / Registro -->
+        <div style="display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 2rem; text-align: center;">
+            <a href="{{ url_for('auth.login') }}" style="flex: 1; padding-bottom: 1rem; color: var(--neon-blue); font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--neon-blue); margin-bottom: -2px;">
+                {% if current_lang == 'es' %}Iniciar Sesión{% else %}Login{% endif %}
+            </a>
+            <a href="{{ url_for('auth.register') }}" style="flex: 1; padding-bottom: 1rem; color: var(--text-muted); font-weight: 600; text-decoration: none;">
+                {% if current_lang == 'es' %}Registrarse{% else %}Register{% endif %}
+            </a>
+        </div>
+
+        <!-- Botón de Google -->
+        <a href="{{ url_for('auth.google_login', next=request.args.get('next')) }}" style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; background: #ffffff; color: #111111; padding: 0.85rem; border-radius: 8px; font-weight: 600; text-decoration: none; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(255,255,255,0.1); transition: transform 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.17 21.32 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.1 0 9.99 0 12s.43 3.9 1.19 5.42l4.09-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.68 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+            {% if current_lang == 'es' %}Continuar con Google{% else %}Continue with Google{% endif %}
+        </a>
+
+        <div style="display: flex; align-items: center; text-align: center; color: var(--text-muted); margin: 1.5rem 0; font-size: 0.85rem;">
+            <div style="flex: 1; border-bottom: 1px solid var(--border-color);"></div>
+            <span style="padding: 0 10px; text-transform: uppercase; letter-spacing: 1px;">OR</span>
+            <div style="flex: 1; border-bottom: 1px solid var(--border-color);"></div>
+        </div>
+
+        <form method="POST">
+            <div style="margin-bottom: 1.25rem; text-align: left;">
+                <label style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Email</label>
+                <input type="email" name="email" placeholder="name@example.com" required style="margin-top: 0.4rem;">
+            </div>
+
+            <div style="margin-bottom: 1.75rem; text-align: left;">
+                <label style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">
+                    {% if current_lang == 'es' %}Contraseña{% else %}Password{% endif %}
+                </label>
+                <input type="password" name="password" placeholder="••••••••" required style="margin-top: 0.4rem;">
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+                {% if current_lang == 'es' %}Iniciar Sesión{% else %}Login{% endif %}
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            {% if current_lang == 'es' %}¿No tienes una cuenta?{% else %}Don't have an account?{% endif %} 
+            <a href="{{ url_for('auth.register') }}" style="color: var(--neon-blue); text-decoration: none; font-weight: 600;">
+                {% if current_lang == 'es' %}Regístrate aquí{% else %}Register here{% endif %}
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
