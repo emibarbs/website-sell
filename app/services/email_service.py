@@ -68,7 +68,7 @@ def _send_via_resend(to_email, subject, html_body):
             "Content-Type": "application/json"
         },
         json={
-            "from": "Digital Agency <onboarding@resend.dev>",
+            "from": "Digital Agency <noreply@sitelanza.com>",
             "to": [to_email],
             "subject": subject,
             "html": html_body
