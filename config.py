@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()  # Carga las variables de .env al entorno ANTES de leerlas
@@ -20,12 +21,16 @@ class Config:
     SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Seguridad de Cookies y Sesión (Necesario para HTTPS en Railway)
+    # Seguridad y Optimización de Cookies y Sesión (HTTPS en Railway)
     SESSION_COOKIE_SECURE = str_to_bool(os.environ.get('SESSION_COOKIE_SECURE'), default=True)
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_REFRESH_EACH_REQUEST = False  # Acelera peticiones al no reenviar la cookie constantemente
+    PERMANENT_SESSION_LIFETIME = timedelta(days=1)  # La sesión dura 24 horas activa
+    
     REMEMBER_COOKIE_SECURE = str_to_bool(os.environ.get('REMEMBER_COOKIE_SECURE'), default=True)
     REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_DURATION = timedelta(days=30)  # "Recordarme" dura 30 días
 
     # Stripe
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
