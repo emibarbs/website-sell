@@ -6,40 +6,32 @@
 <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 85vh; padding: 2rem 0;">
     <div class="card" style="width: 100%; max-width: 480px; text-align: center; padding: 2.5rem 2rem;">
         
-        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--neon-blue);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">
             ✉️
         </div>
 
         <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem;">
-            {% if current_lang == 'es' %}¡Casi listo! Verifica tu correo{% else %}Almost there! Verify your email{% endif %}
+            ¡Casi listo! Verifica tu correo
         </h2>
 
-        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            {% if current_lang == 'es' %}
-                Hemos enviado un correo de confirmación a <strong style="color: #fff;">{{ email }}</strong>. Haz clic en el enlace incluido para activar tu cuenta.
-            {% else %}
-                We sent a confirmation email to <strong style="color: #fff;">{{ email }}</strong>. Click the link in the email to activate your account.
-            {% endif %}
+        <p style="color: var(--text-muted, #9CA3AF); font-size: 1rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Hemos enviado un correo de confirmación a <strong style="color: #fff;">{{ email }}</strong>. Haz clic en el enlace incluido para activar tu cuenta.
         </p>
 
-        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
-                💡 <strong>{% if current_lang == 'es' %}¿No encuentras el correo?{% else %}Can't find the email?{% endif %}</strong><br>
-                {% if current_lang == 'es' %}
-                    Revisa tu carpeta de spam o correo no deseado.
-                {% else %}
-                    Check your spam or junk folder.
-                {% endif %}
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color, #27272A); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
+            <p style="font-size: 0.85rem; color: var(--text-muted, #9CA3AF); margin: 0;">
+                💡 <strong>¿No encuentras el correo?</strong><br>
+                Revisa tu carpeta de spam o correo no deseado.
             </p>
         </div>
 
         <a href="{{ url_for('auth.resend_verification', email=email) }}" class="btn-primary" style="display: inline-block; width: 100%; padding: 0.85rem; font-size: 1rem; text-decoration: none; box-sizing: border-box;">
-            {% if current_lang == 'es' %}Reenviar correo de verificación{% else %}Resend verification email{% endif %}
+            Reenviar correo de verificación
         </a>
 
-        <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
-            <a href="{{ url_for('auth.login') }}" style="color: var(--text-muted); text-decoration: underline;">
-                {% if current_lang == 'es' %}Volver al inicio de sesión{% else %}Back to login{% endif %}
+        <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted, #9CA3AF);">
+            <a href="{{ url_for('auth.login') }}" style="color: var(--text-muted, #9CA3AF); text-decoration: underline;">
+                Volver al inicio de sesión
             </a>
         </p>
 
