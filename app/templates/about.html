@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}{{ t.about }} | Digital Agency{% endblock %}
+{% block meta_description %}{{ t.about_desc }}{% endblock %}
+{% block og_title %}{{ self.title() }}{% endblock %}
+{% block og_description %}{{ t.about_desc }}{% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 4rem 0;">

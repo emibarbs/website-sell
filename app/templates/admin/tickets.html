@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Admin Tickets | Digital Agency{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 4rem 0;">
@@ -17,7 +18,12 @@
                     <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">{{ ticket.subject }}</h4>
                     <p style="color: var(--text-muted); font-size: 0.85rem;">Cliente ID: #{{ ticket.user_id }} | Estado: <span style="color: var(--warning);">{{ ticket.status }}</span></p>
                 </div>
-                <a href="{{ url_for('admin.view_ticket', ticket_id=ticket.id) }}" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Atender Chat</a>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{{ url_for('admin.view_ticket', ticket_id=ticket.id) }}" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Atender Chat</a>
+                    <form method="POST" action="{{ url_for('admin.close_ticket', ticket_id=ticket.id) }}" onsubmit="return confirm('¿Cerrar y eliminar esta conversación? Esta acción no se puede deshacer.');">
+                        <button type="submit" style="background: transparent; border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">🔒 Cerrar</button>
+                    </form>
+                </div>
             </div>
             {% endfor %}
         {% else %}

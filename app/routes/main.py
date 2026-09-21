@@ -31,8 +31,8 @@ def pricing():
 
     return render_template(
         'pricing.html',
-        plan1_price=p1.key_value if p1 else '620',
-        plan2_price=p2.key_value if p2 else '1100'
+        plan1_price=p1.key_value if p1 else '297',
+        plan2_price=p2.key_value if p2 else '597'
     )
 
 

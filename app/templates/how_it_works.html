@@ -3,6 +3,9 @@
 {% block title %}
     {% if current_lang == 'es' %}Cómo Funciona{% else %}How It Works{% endif %} | Digital Agency
 {% endblock %}
+{% block meta_description %}{% if current_lang == 'es' %}Descubre nuestro proceso de 3 pasos: elige tu plan, compra y personaliza, y recibe tu sitio web o app con IA en tiempo récord.{% else %}Discover our simple 3-step process: choose your plan, purchase and personalize, and get your website or AI app delivered fast.{% endif %}{% endblock %}
+{% block og_title %}{{ self.title() }}{% endblock %}
+{% block og_description %}{{ self.meta_description() }}{% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 4rem 0; display: flex; flex-direction: column; align-items: center;">

@@ -1,10 +1,39 @@
 {% extends "base.html" %}
 
 {% block title %}Chat - Ticket #{{ ticket.id }} | Digital Agency{% endblock %}
+{% block meta_description %}Support chat for your project ticket.{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
+
+{% block extra_head %}
+<style>
+    .ticket-chat-card { display: flex; flex-direction: column; height: 550px; padding: 1.5rem; overflow: hidden; }
+    .ticket-chat-messages { flex-grow: 1; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.85rem; }
+    .ticket-msg { background-color: var(--bg-main); padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid var(--border-color); max-width: 78%; word-wrap: break-word; overflow-wrap: break-word; }
+    .ticket-msg.mine { background-color: rgba(0, 102, 255, 0.15); align-self: flex-end; }
+    .ticket-msg.theirs { align-self: flex-start; }
+    .ticket-msg-meta { font-size: 0.72rem; color: var(--text-disabled); display: block; margin-bottom: 0.35rem; }
+    .ticket-msg-body { font-size: 0.95rem; white-space: pre-wrap; word-break: break-word; }
+    .ticket-attachment-img { display: block; max-width: 100%; max-height: 220px; border-radius: 8px; margin-top: 0.5rem; border: 1px solid var(--border-color); cursor: zoom-in; }
+    .ticket-attachment-file { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; text-decoration: none; color: var(--neon-blue); font-size: 0.85rem; max-width: 100%; overflow: hidden; }
+    .ticket-attachment-file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ticket-chat-form { border-top: 1px solid var(--border-color); padding-top: 1rem; }
+    .ticket-chat-inputrow { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; }
+    .ticket-chat-inputrow input[type="text"] { margin: 0; flex-grow: 1; min-width: 180px; }
+    .attach-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 8px; width: 46px; height: 46px; flex-shrink: 0; font-size: 1.1rem; cursor: pointer; }
+    .attach-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+    .attach-preview { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; display: none; align-items: center; gap: 0.5rem; }
+    .attach-preview.is-visible { display: flex; }
+    .attach-preview button { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.9rem; }
+    @media (max-width: 640px) {
+        .ticket-chat-card { height: 70vh; }
+        .ticket-msg { max-width: 90%; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 4rem 0; max-width: 900px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="font-size: 1.75rem; margin-bottom: 0.25rem;">{{ ticket.subject }}</h1>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Estado: <span style="color: var(--warning);">{{ ticket.status }}</span> | Típico tiempo de respuesta: hasta 5 minutos</p>
@@ -13,28 +42,43 @@
     </div>
 
     <!-- Caja de Conversación -->
-    <div class="card" style="display: flex; flexDirection: column; height: 500px; padding: 1.5rem; overflow: hidden;">
-        
+    <div class="card ticket-chat-card">
+
         <!-- Mensajes -->
-        <div id="messagesContainer" style="flex-grow: 1; overflow-y: auto; padding-right: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem;">
-            <!-- Mensaje inicial del ticket -->
-            <div style="background-color: var(--bg-main); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); max-width: 80%;">
-                <span style="font-size: 0.75rem; color: var(--emerald-green); display: block; margin-bottom: 0.25rem;">Descripción Inicial del Proyecto</span>
-                <p style="font-size: 0.95rem;">{{ ticket.description }}</p>
+        <div id="messagesContainer" class="ticket-chat-messages">
+            <div class="ticket-msg theirs">
+                <span class="ticket-msg-meta" style="color: var(--emerald-green);">Descripción Inicial del Proyecto</span>
+                <p class="ticket-msg-body">{{ ticket.description }}</p>
             </div>
 
             {% for msg in messages %}
-            <div style="background-color: {% if msg.sender_id == current_user.id %}rgba(0, 102, 255, 0.15){% else %}var(--bg-main){% endif %}; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); max-width: 80%; align-self: {% if msg.sender_id == current_user.id %}flex-end{% else %}flex-start{% endif %};">
-                <span style="font-size: 0.75rem; color: var(--text-disabled); display: block; margin-bottom: 0.25rem;">{{ msg.timestamp.strftime('%H:%M') }}</span>
-                <p style="font-size: 0.95rem;">{{ msg.body }}</p>
+            <div class="ticket-msg {% if msg.sender_id == current_user.id %}mine{% else %}theirs{% endif %}">
+                <span class="ticket-msg-meta">{{ msg.timestamp.strftime('%H:%M') }}</span>
+                {% if msg.body %}<p class="ticket-msg-body">{{ msg.body }}</p>{% endif %}
+                {% if msg.has_attachment %}
+                    {% set file_url = url_for('static', filename='uploads/chat/' ~ ticket.id ~ '/' ~ msg.attachment_filename) %}
+                    {% if msg.attachment_is_image %}
+                        <a href="{{ file_url }}" target="_blank" rel="noopener"><img class="ticket-attachment-img" src="{{ file_url }}" alt="{{ msg.attachment_original_name }}"></a>
+                    {% else %}
+                        <a class="ticket-attachment-file" href="{{ file_url }}" target="_blank" rel="noopener">📎 <span>{{ msg.attachment_original_name }}</span></a>
+                    {% endif %}
+                {% endif %}
             </div>
             {% endfor %}
         </div>
 
         <!-- Formulario para Enviar Mensaje -->
-        <form method="POST" style="display: flex; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-            <input type="text" name="body" required placeholder="Escribe tu mensaje aquí..." style="margin: 0; flex-grow: 1;">
-            <button type="submit" class="btn-primary" style="padding: 0 1.5rem;">Enviar</button>
+        <form method="POST" enctype="multipart/form-data" class="ticket-chat-form">
+            <div class="ticket-chat-inputrow">
+                <button type="button" class="attach-btn" onclick="document.getElementById('clientAttachmentInput').click()" title="Adjuntar archivo (máx. 5MB)">📎</button>
+                <input type="file" id="clientAttachmentInput" name="attachment" style="display:none;" onchange="handleAttachmentChange(this, 'clientAttachPreview')">
+                <input type="text" name="body" placeholder="Escribe tu mensaje aquí..." autocomplete="off">
+                <button type="submit" class="btn-primary" style="padding: 0 1.5rem;">Enviar</button>
+            </div>
+            <div class="attach-preview" id="clientAttachPreview">
+                <span></span>
+                <button type="button" onclick="clearAttachment('clientAttachmentInput', 'clientAttachPreview')">✕ Quitar</button>
+            </div>
         </form>
     </div>
 </div>
@@ -44,6 +88,39 @@
 <script>
     const TICKET_ID = {{ ticket.id }};
     const CURRENT_USER_ID = {{ current_user.id }};
+    const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
+
+    function handleAttachmentChange(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const nameSpan = preview.querySelector('span');
+        if (!input.files || !input.files[0]) {
+            preview.classList.remove('is-visible');
+            return;
+        }
+        const file = input.files[0];
+        if (file.size > MAX_ATTACHMENT_BYTES) {
+            alert("{% if current_lang == 'es' %}El archivo supera el límite de 5MB.{% else %}The file exceeds the 5MB limit.{% endif %}");
+            input.value = '';
+            preview.classList.remove('is-visible');
+            return;
+        }
+        nameSpan.textContent = '📎 ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+        preview.classList.add('is-visible');
+    }
+
+    function clearAttachment(inputId, previewId) {
+        document.getElementById(inputId).value = '';
+        document.getElementById(previewId).classList.remove('is-visible');
+    }
+
+    function renderAttachmentHtml(data) {
+        if (!data.attachment_url) return '';
+        if (data.attachment_is_image) {
+            return `<a href="${data.attachment_url}" target="_blank" rel="noopener"><img class="ticket-attachment-img" src="${data.attachment_url}" alt=""></a>`;
+        }
+        return `<a class="ticket-attachment-file" href="${data.attachment_url}" target="_blank" rel="noopener">📎 <span>${escapeHtml(data.attachment_name || 'archivo')}</span></a>`;
+    }
+
     if (socket) {
         socket.emit('join_ticket', { ticket_id: TICKET_ID });
         socket.on('new_message', (data) => {
@@ -52,8 +129,9 @@
             if (!container) return;
             const mine = data.sender_id === CURRENT_USER_ID;
             const div = document.createElement('div');
-            div.style.cssText = `background-color:${mine ? 'rgba(0, 102, 255, 0.15)' : 'var(--bg-main)'};padding:1rem;border-radius:8px;border:1px solid var(--border-color);max-width:80%;align-self:${mine ? 'flex-end' : 'flex-start'};`;
-            div.innerHTML = `<span style="font-size:0.75rem;color:var(--text-disabled);display:block;margin-bottom:0.25rem;">${data.timestamp}</span><p style="font-size:0.95rem;">${escapeHtml(data.body)}</p>`;
+            div.className = 'ticket-msg ' + (mine ? 'mine' : 'theirs');
+            let bodyHtml = data.body ? `<p class="ticket-msg-body">${escapeHtml(data.body)}</p>` : '';
+            div.innerHTML = `<span class="ticket-msg-meta">${data.timestamp}</span>${bodyHtml}${renderAttachmentHtml(data)}`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         });
@@ -67,7 +145,7 @@
                 container.appendChild(div);
                 container.scrollTop = container.scrollHeight;
             }
-            document.querySelectorAll('input[name="body"], button[type="submit"]').forEach(el => el.disabled = true);
+            document.querySelectorAll('input[name="body"], button[type="submit"], .attach-btn').forEach(el => el.disabled = true);
             setTimeout(() => { window.location.href = "{{ url_for('client.tickets') }}"; }, 4000);
         });
     }

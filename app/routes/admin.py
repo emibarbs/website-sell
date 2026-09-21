@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_login import current_user
 from app.models.user import User
 from app.models.order import Order
@@ -7,6 +7,7 @@ from app.models.message import Message
 from app.models.setting import Setting
 from app.extensions import db, socketio
 from app.services.stripe_service import sync_plan_price
+from app.services.upload_service import save_chat_attachment, AttachmentError
 from app.sockets import is_close_command, close_ticket_and_notify, CLOSE_MANUAL_MESSAGE
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -57,16 +58,34 @@ def view_ticket(ticket_id):
             flash('Conversación cerrada y eliminada.')
             return redirect(url_for('admin.tickets'))
 
-        if body:
-            msg = Message(ticket_id=ticket.id, sender_id=current_user.id, body=body)
+        attachment_data = None
+        try:
+            attachment_data = save_chat_attachment(
+                current_app, request.files.get('attachment'), ticket.id
+            )
+        except AttachmentError as e:
+            flash(str(e), 'danger')
+            return redirect(url_for('admin.view_ticket', ticket_id=ticket.id))
+
+        if body or attachment_data:
+            msg = Message(ticket_id=ticket.id, sender_id=current_user.id, body=body or None)
+            if attachment_data:
+                msg.attachment_filename = attachment_data['attachment_filename']
+                msg.attachment_original_name = attachment_data['attachment_original_name']
+                msg.attachment_mime = attachment_data['attachment_mime']
+                msg.attachment_size = attachment_data['attachment_size']
             db.session.add(msg)
+            db.session.flush()
             socketio.emit('new_message', {
                 'ticket_id': ticket.id,
                 'sender_id': current_user.id,
                 'sender_name': current_user.name,
-                'body': body,
+                'body': msg.body or '',
                 'timestamp': msg.timestamp.strftime('%H:%M') if msg.timestamp else '',
                 'is_admin': True,
+                'attachment_url': url_for('static', filename=f'uploads/chat/{ticket.id}/{msg.attachment_filename}') if msg.has_attachment else None,
+                'attachment_name': msg.attachment_original_name,
+                'attachment_is_image': msg.attachment_is_image,
             }, room=f'ticket_{ticket.id}')
 
         if new_status and new_status != ticket.status:
@@ -80,12 +99,17 @@ def view_ticket(ticket_id):
     return render_template('admin/chat.html', ticket=ticket, messages=messages)
 
 
-@bp.route('/ticket/close/<int:ticket_id>')
+@bp.route('/ticket/close/<int:ticket_id>', methods=['POST'])
 def close_ticket(ticket_id):
+    """Cierra la conversación y la elimina (junto con sus mensajes) de forma
+    definitiva. Antes este endpoint solo marcaba el ticket como 'Closed' sin
+    borrarlo, dejando conversaciones "cerradas" que nunca se eliminaban.
+    Ahora reutiliza la misma lógica que el comando de texto "close conversation",
+    para que cerrar desde el botón del panel de administración funcione
+    siempre y de forma consistente."""
     ticket = Ticket.query.get_or_404(ticket_id)
-    ticket.status = 'Closed'
-    db.session.commit()
-    flash('Ticket closed successfully.')
+    close_ticket_and_notify(ticket.id, CLOSE_MANUAL_MESSAGE)
+    flash('Conversación cerrada y eliminada correctamente.')
     return redirect(url_for('admin.tickets'))
 
 
@@ -142,8 +166,8 @@ def pricing_settings():
     p2 = Setting.query.filter_by(key_name='plan2_price').first()
     return render_template(
         'admin/pricing.html',
-        plan1_price=p1.key_value if p1 else '620',
-        plan2_price=p2.key_value if p2 else '1100',
+        plan1_price=p1.key_value if p1 else '297',
+        plan2_price=p2.key_value if p2 else '597',
     )
 
 

@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort, current_app
 from flask_login import login_required, current_user
 from app.models.order import Order
 from app.models.ticket import Ticket
 from app.models.message import Message
 from app.extensions import db, socketio
+from app.services.upload_service import save_chat_attachment, AttachmentError
 from app.sockets import is_close_command, close_ticket_and_notify, CLOSE_MANUAL_MESSAGE
 
 bp = Blueprint('client', __name__, url_prefix='/client')
@@ -39,23 +40,40 @@ def view_ticket(ticket_id):
             flash('Conversación cerrada.')
             return redirect(url_for('client.tickets'))
 
-        if body:
-            msg = Message(ticket_id=ticket.id, sender_id=current_user.id, body=body)
+        attachment_data = None
+        try:
+            attachment_data = save_chat_attachment(
+                current_app, request.files.get('attachment'), ticket.id
+            )
+        except AttachmentError as e:
+            flash(str(e), 'danger')
+            return redirect(url_for('client.view_ticket', ticket_id=ticket.id))
+
+        if body or attachment_data:
+            msg = Message(ticket_id=ticket.id, sender_id=current_user.id, body=body or None)
+            if attachment_data:
+                msg.attachment_filename = attachment_data['attachment_filename']
+                msg.attachment_original_name = attachment_data['attachment_original_name']
+                msg.attachment_mime = attachment_data['attachment_mime']
+                msg.attachment_size = attachment_data['attachment_size']
             db.session.add(msg)
             db.session.commit()
             socketio.emit('new_message', {
                 'ticket_id': ticket.id,
                 'sender_id': current_user.id,
                 'sender_name': current_user.name,
-                'body': body,
+                'body': msg.body or '',
                 'timestamp': msg.timestamp.strftime('%H:%M') if msg.timestamp else '',
                 'is_admin': False,
+                'attachment_url': url_for('static', filename=f'uploads/chat/{ticket.id}/{msg.attachment_filename}') if msg.has_attachment else None,
+                'attachment_name': msg.attachment_original_name,
+                'attachment_is_image': msg.attachment_is_image,
             }, room=f'ticket_{ticket.id}')
             socketio.emit('admin_alert', {
                 'kind': 'message',
                 'ticket_id': ticket.id,
                 'subject': ticket.subject,
-                'preview': body[:80],
+                'preview': (body[:80] if body else f'📎 {msg.attachment_original_name}'),
                 'sender_name': current_user.name,
             }, room='admin_notifications')
         return redirect(url_for('client.view_ticket', ticket_id=ticket.id))

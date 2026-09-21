@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ t.pricing }} | Digital Agency{% endblock %}
+{% block meta_description %}{% if current_lang == 'es' %}Precios accesibles para tu sitio web o app con IA: Plan 1 desde ${{ plan1_price }} USD y Plan 2 desde ${{ plan2_price }} USD. Cotizaciones personalizadas disponibles.{% else %}Affordable pricing for your website or AI app: Plan 1 from ${{ plan1_price }} USD and Plan 2 from ${{ plan2_price }} USD. Custom quotes available.{% endif %}{% endblock %}
+{% block og_title %}{{ self.title() }}{% endblock %}
+{% block og_description %}{{ self.meta_description() }}{% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 4rem 0;">
@@ -26,25 +29,30 @@
                 </h3>
                 <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">${{ plan1_price }} <span style="font-size: 1rem; color: var(--text-muted); font-weight: normal;">USD</span></div>
                 
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                    {% if current_lang == 'es' %}Ideal para negocios pequeños y profesionales que necesitan presencia en línea rápida y profesional.{% else %}Ideal for small businesses and professionals who need a fast, professional online presence.{% endif %}
+                </p>
                 <ul style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.2rem; text-align: left;">
                     {% if current_lang == 'es' %}
-                    <li>Máximo 4 páginas</li>
-                    <li>Podemos agregar los videos que necesites</li>
-                    <li>Botones interactivos de inicio de sesión, panel, creación de logotipos, colores</li>
-                    <li>Página de correo donde los clientes pueden enviar información a tu correo</li>
-                    <li>1 semana y media de trabajo</li>
-                    <li>Buen SEO</li>
-                    <li>Totalmente responsivo (ajustable para móvil, PC o cualquier dispositivo)</li>
-                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">Sin reembolso</li>
+                    <li>Sitio web de hasta 4 páginas (Inicio, Sobre Nosotros, Servicios, Contacto, etc.)</li>
+                    <li>Diseño 100% personalizado, no plantillas genéricas</li>
+                    <li>Incluye los videos que necesites en tu sitio</li>
+                    <li>Botones interactivos de inicio de sesión, panel de usuario, logotipo y paleta de colores a la medida</li>
+                    <li>Formulario de contacto que envía los mensajes directo a tu correo</li>
+                    <li>Entrega en 1 semana y media</li>
+                    <li>SEO on-page básico incluido (títulos, meta descripciones, sitemap)</li>
+                    <li>100% responsivo: se ve perfecto en móvil, tablet y PC</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">Sin reembolso una vez iniciado el proyecto</li>
                     {% else %}
-                    <li>4 pages max</li>
-                    <li>We can add videos that you need</li>
-                    <li>Log in interactive buttons, dashboard, logo creation, colors</li>
-                    <li>Mail page where clients can send info to your email</li>
-                    <li>1 week and a half of work</li>
-                    <li>Good SEO</li>
-                    <li>Fully responsive (adjustable for mobile, PC, or any device)</li>
-                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">No refund</li>
+                    <li>Website with up to 4 pages (Home, About, Services, Contact, etc.)</li>
+                    <li>100% custom design, no generic templates</li>
+                    <li>We can add any videos your site needs</li>
+                    <li>Interactive login buttons, user dashboard, custom logo and color palette</li>
+                    <li>Contact form that sends messages straight to your email</li>
+                    <li>Delivered in 1.5 weeks</li>
+                    <li>Basic on-page SEO included (titles, meta descriptions, sitemap)</li>
+                    <li>Fully responsive: looks great on mobile, tablet and desktop</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">No refund once the project has started</li>
                     {% endif %}
                 </ul>
             </div>
@@ -64,25 +72,28 @@
                 </h3>
                 <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">${{ plan2_price }} <span style="font-size: 1rem; color: var(--text-muted); font-weight: normal;">USD</span></div>
                 
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                    {% if current_lang == 'es' %}Perfecto para negocios que venden en línea y quieren cobrar directamente desde su sitio.{% else %}Perfect for businesses that sell online and want to get paid directly from their site.{% endif %}
+                </p>
                 <ul style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.2rem; text-align: left;">
                     {% if current_lang == 'es' %}
-                    <li>Todo lo del Plan 1</li>
-                    <li>Animaciones incluidas</li>
-                    <li>Máximo 7 páginas</li>
-                    <li>Integración de métodos de pago (o consulta otros métodos)</li>
-                    <li>Chat 1 a 1 contigo + Página de administrador para revisar notificaciones</li>
-                    <li>1 semana y media de trabajo</li>
-                    <li>Mejor SEO</li>
-                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">Sin reembolso</li>
+                    <li>Todo lo incluido en el Plan 1</li>
+                    <li>Animaciones e interacciones avanzadas en toda la página</li>
+                    <li>Sitio web de hasta 7 páginas</li>
+                    <li>Integración de pagos en línea (tarjeta y otros métodos a consultar)</li>
+                    <li>Chat de soporte 1 a 1 contigo, más panel de administrador con notificaciones en tiempo real</li>
+                    <li>Entrega en 1 semana y media</li>
+                    <li>SEO avanzado (Open Graph, datos estructurados, mejor indexación)</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">Sin reembolso una vez iniciado el proyecto</li>
                     {% else %}
-                    <li>Everything in Plan 1</li>
-                    <li>Animations included</li>
-                    <li>7 pages max</li>
-                    <li>Payment method integration (or talk about other methods)</li>
-                    <li>1 on 1 chat with you + Admin page to check notifications</li>
-                    <li>1 week and a half of work</li>
-                    <li>Better SEO</li>
-                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">No refund</li>
+                    <li>Everything included in Plan 1</li>
+                    <li>Advanced animations and interactions across the site</li>
+                    <li>Website with up to 7 pages</li>
+                    <li>Online payment integration (card and other methods on request)</li>
+                    <li>1-on-1 support chat with you, plus an admin dashboard with real-time notifications</li>
+                    <li>Delivered in 1.5 weeks</li>
+                    <li>Advanced SEO (Open Graph, structured data, better indexing)</li>
+                    <li style="color: var(--warning); font-weight: 600; margin-top: 0.5rem;">No refund once the project has started</li>
                     {% endif %}
                 </ul>
             </div>

@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}Digital Agency | The Web, Built for the Present{% endblock %}
+{% block meta_description %}{% if current_lang == 'es' %}Construimos sitios web, chatbots de IA y aplicaciones a medida que atraen, cautivan y convierten clientes. Planes accesibles y soporte en vivo.{% else %}We build websites, AI chatbots and custom apps that attract, engage and convert customers. Affordable plans and live support.{% endif %}{% endblock %}
+{% block og_title %}{{ self.title() }}{% endblock %}
+{% block og_description %}{{ self.meta_description() }}{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
