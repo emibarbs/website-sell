@@ -15,6 +15,47 @@ def agents_online_count():
     return random.Random(seed).randint(1, MAX_AGENTS_ONLINE)
 
 
+def _ensure_message_attachment_columns(db):
+    """Agrega attachment_filename/original_name/mime/size a messages y hace
+    body nullable, si aún no existen. Funciona tanto en PostgreSQL (Railway)
+    como en SQLite (desarrollo local), y no hace nada si ya están aplicadas."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if 'messages' not in inspector.get_table_names():
+        return  # la tabla se creará con las columnas correctas vía db.create_all()
+
+    existing_columns = {col['name'] for col in inspector.get_columns('messages')}
+    dialect = db.engine.dialect.name
+
+    with db.engine.begin() as conn:
+        if dialect == 'postgresql':
+            conn.execute(text('ALTER TABLE messages ALTER COLUMN body DROP NOT NULL'))
+            columns_to_add = {
+                'attachment_filename': 'VARCHAR(255)',
+                'attachment_original_name': 'VARCHAR(255)',
+                'attachment_mime': 'VARCHAR(100)',
+                'attachment_size': 'INTEGER',
+            }
+            for col_name, col_type in columns_to_add.items():
+                if col_name not in existing_columns:
+                    conn.execute(text(f'ALTER TABLE messages ADD COLUMN IF NOT EXISTS {col_name} {col_type}'))
+        elif dialect == 'sqlite':
+            # SQLite no soporta ALTER COLUMN para quitar NOT NULL ni "IF NOT EXISTS"
+            # en ADD COLUMN, pero db.create_all() ya crea la tabla correcta desde
+            # cero en instalaciones nuevas; aquí solo agregamos columnas si faltan
+            # en una base de datos local ya existente.
+            columns_to_add = {
+                'attachment_filename': 'VARCHAR(255)',
+                'attachment_original_name': 'VARCHAR(255)',
+                'attachment_mime': 'VARCHAR(100)',
+                'attachment_size': 'INTEGER',
+            }
+            for col_name, col_type in columns_to_add.items():
+                if col_name not in existing_columns:
+                    conn.execute(text(f'ALTER TABLE messages ADD COLUMN {col_name} {col_type}'))
+
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -31,13 +72,24 @@ def create_app(config_class=Config):
     # Importar todos los modelos para que SQLAlchemy los reconozca al crear las tablas
     from app.models import user, order, ticket, message, setting
 
-    # Crear automáticamente las tablas si no existen (protegido con try/except 
+    # Crear automáticamente las tablas si no existen (protegido con try/except
     # para evitar condiciones de carrera cuando Gunicorn levanta múltiples workers)
     try:
         with app.app_context():
             db.create_all()
     except Exception as e:
         print(f"Nota: Las tablas ya existen o se omitió la creación automática: {e}")
+
+    # Parche ligero: agrega las columnas de adjuntos a "messages" si la tabla ya
+    # existía de antes (creada por db.create_all() sin pasar por Alembic) y por
+    # lo tanto no tiene las columnas nuevas. Es seguro re-ejecutarlo: usa
+    # "IF NOT EXISTS" y por eso no falla si las columnas ya están, ni si corren
+    # varios workers de Gunicorn a la vez.
+    try:
+        with app.app_context():
+            _ensure_message_attachment_columns(db)
+    except Exception as e:
+        print(f"Nota: no se pudo verificar/agregar columnas de adjuntos en messages: {e}")
 
     # Registrar los manejadores de eventos Socket.IO (chat en tiempo real + notificaciones admin)
     from app import sockets
